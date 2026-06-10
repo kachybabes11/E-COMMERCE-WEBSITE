@@ -198,7 +198,7 @@ app.get("/cart", (req, res) => {
   res.render("cart", { cart, total })
 })
 
-app.post("/cart/remove", (req, res) => {
+
   app.post("/cart/remove", (req, res) => {
   const { productId, color } = req.body
   const cart = getCart(req)
@@ -209,8 +209,7 @@ app.post("/cart/remove", (req, res) => {
   )
 
   res.redirect("/cart")
-})
-})
+});
 
 app.post("/checkout", (req, res) => {
   const { shipping, lagosArea } = req.body
