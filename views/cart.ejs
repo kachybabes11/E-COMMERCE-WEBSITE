@@ -99,7 +99,7 @@
           Total: <span id="finalTotal">₦<%= (total + 5).toFixed(2) %></span>
         </p>
 
-        <form action="/checkout" method="post">
+        <form action="/paystack/pay" method="post">
           <button class="button button-primary full-width">
             Proceed to Checkout
           </button>

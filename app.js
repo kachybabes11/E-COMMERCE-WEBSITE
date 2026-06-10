@@ -8,6 +8,7 @@ import passport from "passport"
 import { Strategy as LocalStrategy } from "passport-local"
 import GoogleStrategy from "passport-google-oauth2"
 import bcrypt from "bcrypt"
+import axios from "axios"
 import db from "./config/db.js"
 import productCatalog from "./config/products.js"
 
@@ -209,6 +210,77 @@ app.get("/cart", (req, res) => {
   )
 
   res.redirect("/cart")
+});
+
+app.post("/paystack/pay", async (req, res) => {
+  const cart = getCart(req);
+
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+
+  const email = req.user?.email;
+
+  if (!email) {
+    return res.redirect("/login");
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api.paystack.co/transaction/initialize",
+      {
+        email,
+        amount: subtotal * 100, // Paystack uses kobo
+        callback_url: `${process.env.BASE_URL}/paystack/callback`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res.redirect(response.data.data.authorization_url);
+  } catch (err) {
+    console.log(err.response?.data || err.message);
+    return res.send("Payment initialization failed");
+  }
+});
+
+app.get("/paystack/callback", async (req, res) => {
+  const reference = req.query.reference;
+
+  try {
+    const response = await axios.get(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        },
+      }
+    );
+
+    const data = response.data.data;
+
+    if (data.status === "success") {
+      const cart = getCart(req);
+
+      // (OPTIONAL) Save order here later
+      req.session.cart = [];
+
+      return res.render("checkout", {
+        reference,
+        total: data.amount / 100,
+      });
+    }
+
+    return res.send("Payment failed");
+  } catch (err) {
+    console.log(err.message);
+    return res.send("Verification error");
+  }
 });
 
 app.post("/checkout", (req, res) => {
