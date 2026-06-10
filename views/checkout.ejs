@@ -1,0 +1,151 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content checkout-page">
+  <section class="checkout-card">
+
+    <div class="success-icon">🎉</div>
+
+    <h1>Order Confirmed</h1>
+
+    <p class="thank-you">
+      Thanks for shopping with <strong>BagCartel</strong>.
+      Your order has been successfully placed.
+    </p>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-summary">
+
+      <h2>Order Summary</h2>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>₦<%= subtotal.toLocaleString() %></span>
+      </div>
+
+      <div class="summary-row">
+        <span>Shipping Method</span>
+        <span><%= shipping %></span>
+      </div>
+
+      <% if (shipping === "lagos") { %>
+        <div class="summary-row">
+          <span>Lagos Area</span>
+          <span><%= lagosArea %></span>
+        </div>
+
+        <div class="summary-row">
+          <span>Shipping Fee</span>
+          <span>₦<%= shippingCost.toLocaleString() %></span>
+        </div>
+      <% } %>
+
+      <% if (shipping === "outside") { %>
+        <div class="summary-row warning">
+          <span>Outside Lagos</span>
+          <span>Fee will be negotiated</span>
+        </div>
+      <% } %>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>₦<%= total.toLocaleString() %></span>
+      </div>
+
+    </div>
+
+    <a href="/products" class="button button-primary">
+      Continue Shopping
+    </a>
+
+  </section>
+</main>
+
+<style>
+  /* CHECKOUT PAGE */
+.checkout-page {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  background: #f6f7fb;
+  min-height: 100vh;
+}
+
+.checkout-card {
+  background: #fff;
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+
+.success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.checkout-card h1 {
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.thank-you {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* ORDER SUMMARY */
+.order-summary {
+  text-align: left;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f9f9ff;
+  border-radius: 15px;
+  border: 1px solid #eee;
+}
+
+.order-summary h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #1a1a2e;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.summary-row.total {
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-top: 1px solid #ddd;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  color: #1a1a2e;
+}
+
+.summary-row.warning {
+  color: #ff4d4d;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button-primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+</style>
+
+<%- include('../partials/footer.ejs') %>
+

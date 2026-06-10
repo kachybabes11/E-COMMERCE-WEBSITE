@@ -1,0 +1,38 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content">
+  <section class="product-listing">
+    <div class="listing-header">
+      <div>
+        <h1>Shop products</h1>
+        <% if (selectedCategory) { %>
+        <p>Showing category: <strong><%= selectedCategory %></strong></p>
+        <% } else { %>
+        <p>Browse the full collection by category.</p>
+        <% } %>
+      </div>
+      <div class="category-filters">
+        <a class="filter-button <%= !selectedCategory ? 'active' : '' %>" href="/products">All</a>
+        <% categories.forEach((category) => { %>
+        <a class="filter-button <%= selectedCategory === category ? 'active' : '' %>" href="/products?category=<%= category %>"><%= category %></a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="product-grid">
+      <% products.forEach((product) => { %>
+      <article class="product-card">
+        <a href="/product/<%= product.id %>">
+          <img class="product-image" src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" />
+          <div class="product-info">
+            <h3><%= product.name %></h3>
+            <span class="price">₦<%= product.price.toFixed(2) %></span>
+          </div>
+        </a>
+      </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>

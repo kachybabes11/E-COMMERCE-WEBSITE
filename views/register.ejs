@@ -1,0 +1,19 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content auth-page">
+  <section class="auth-card">
+    <h1>Create account</h1>
+    <form action="/register" method="post">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required />
+
+      <button class="button button-primary" type="submit">Register</button>
+    </form>
+    <p class="small-text">Already have an account? <a href="/login">Sign in</a></p>
+  </section>
+</main>
+
+<%- include('.../partials/footer.ejs') %>

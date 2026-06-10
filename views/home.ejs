@@ -1,0 +1,225 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content">
+  <section class="hero-section">
+    <div class="hero-copy">
+      <span class="eyebrow">New collection</span>
+      <h1>Your Next Favoutite Bag is Here!</h1>
+      <p>Handpicked styles from trusted sources. Over here we combine trend, quality, and everyday practicality. Find the perfect bag for work, outings, and everything in between.</p>
+      <a href="/products" class="button button-primary">Explore collection</a>
+    </div>
+    <div class="hero-carousel">
+      <div class="carousel-container">
+        <div class="carousel-slides">
+          <div class="carousel-slide active"
+style="background-image: url('https://images.unsplash.com/photo-1584917865442-de89df76afd3?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmFnfGVufDB8fDB8fHww');">
+  <span class="slide-label">Elegant Corporate Bags</span>
+</div>
+          <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1100&q=80');"><span class="slide-label">Tote Bags</span></div>
+          <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1100&q=80');"><span class="slide-label">Purses</span></div>
+          <div class="carousel-slide" style="background-image: url('https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1100&q=80');"><span class="slide-label">Chic Mini Bags</span></div>
+        </div>
+        <button class="carousel-btn prev" onclick="moveCarousel(-1)">‹</button>
+        <button class="carousel-btn next" onclick="moveCarousel(1)">›</button>
+        <div class="carousel-dots">
+          <span class="dot active" onclick="currentSlide(0)"></span>
+          <span class="dot" onclick="currentSlide(1)"></span>
+          <span class="dot" onclick="currentSlide(2)"></span>
+          <span class="dot" onclick="currentSlide(3)"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bag-showcase">
+    <div class="bag-showcase-card">
+      <img src="../assets/portrait-stylish-young-woman-suit-260nw-2479904535.jpg" alt="Featured bag" />
+      <div class="bag-quote">
+        <p>You can't buy happiness but you can buy a handbag and that's pretty close!</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="featured-section">
+    <div class="section-header">
+      <h2>HOT PICKS</h2>
+      <p>Shop our bestselling chic bags that are to die for!</p>
+    </div>
+    <div class="product-grid">
+      <% featured.forEach((product) => { %>
+      <article class="product-card">
+        <a href="/product/<%= product.id %>">
+          <div class="product-image-wrapper">
+            <img src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" />
+            <div class="product-overlay">
+              <button class="quick-view">SHOP NOW</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h3><%= product.name %></h3>
+            <span class="price">₦<%= product.price.toFixed(2) %></span>
+          </div>
+        </a>
+      </article>
+      <% }) %>
+    </div>
+  </section>
+<br><br>
+  <section class="about-section">
+    <div class="section-header">
+      <h2>Why shop with us</h2>
+      <p>Experience shopping like never before with BagCartel</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🚚</div>
+        <h3>Fast delivery</h3>
+        <p>Get your order delivered quickly with reliable shipping options worldwide.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">↩️</div>
+        <h3>Easy returns</h3>
+        <p>Hassle-free returns and exchanges for a comfortable shopping experience.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Secure checkout</h3>
+        <p>Encrypted checkout that keeps your payment details safe and private.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>24/7 support</h3>
+        <p>Our friendly team is here to help you with any questions or concerns.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+  .carousel-slide {
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+  }
+
+  .carousel-slide .slide-label {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .bag-showcase {
+    margin: 3rem 0;
+  }
+
+  .bag-showcase-card {
+    position: relative;
+    border-radius: 30px;
+    overflow: hidden;
+    min-height: 380px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  }
+
+  .bag-showcase-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bag-quote {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.55));
+  }
+
+  .bag-quote p {
+    color: #fff;
+    font-size: clamp(1.6rem, 2.5vw, 2.6rem);
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-weight: 700;
+    max-width: 32rem;
+  }
+
+  .quick-view {
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .quick-view:hover {
+    background: #fff;
+    transform: scale(1.05);
+  }
+
+  .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+</style>
+
+<script>
+  let currentSlideIndex = 0;
+  const autoSlideInterval = 5000;
+
+  function moveCarousel(n) {
+    showSlide(currentSlideIndex += n);
+    resetAutoSlide();
+  }
+
+  function currentSlide(n) {
+    showSlide(currentSlideIndex = n);
+    resetAutoSlide();
+  }
+
+  function showSlide(n) {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    if (n >= slides.length) currentSlideIndex = 0;
+    if (n < 0) currentSlideIndex = slides.length - 1;
+    
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    slides[currentSlideIndex].classList.add('active');
+    dots[currentSlideIndex].classList.add('active');
+  }
+
+  function resetAutoSlide() {
+    clearInterval(window.autoSlideTimer);
+    window.autoSlideTimer = setInterval(() => moveCarousel(1), autoSlideInterval);
+  }
+
+  window.autoSlideTimer = setInterval(() => moveCarousel(1), autoSlideInterval);
+</script>

@@ -1,0 +1,444 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content product-page">
+  <section class="single-product">
+    <div class="product-media">
+      <div class="image-slideshow">
+  <div class="slideshow-container" id="slideshow">
+    <% product.colors[0].images.forEach((img, index) => { %>
+      <div class="slide <%= index === 0 ? 'active' : '' %>">
+        <img src="<%= img %>" alt="<%= product.name %>" />
+      </div>
+    <% }) %>
+
+    <button class="slide-nav prev" onclick="changeSlide(-1)">&#10094;</button>
+    <button class="slide-nav next" onclick="changeSlide(1)">&#10095;</button>
+  </div>
+<div class="color-swatches">
+  <p class="color-label">Color:</p>
+
+  <div class="swatches-container">
+    <% product.colors.forEach((color, index) => { %>
+      <button
+        type="button"
+        class="color-swatch <%= index === 0 ? 'active' : '' %>"
+        onclick="selectColor(<%= index %>, event)">
+        <%= color.name %>
+      </button>
+    <% }) %>
+  </div>
+</div>
+
+  <div class="slide-indicators" id="indicators">
+    <% product.colors[0].images.forEach((img, index) => { %>
+      <span class="indicator <%= index === 0 ? 'active' : '' %>"
+            onclick="goToSlide(<%= index %>)"></span>
+    <% }) %>
+  </div>
+</div>
+    </div>
+
+    <div class="product-details">
+      <span class="category-label"><%= product.category %></span>
+      <h1><%= product.name %></h1>
+      <p class="product-description"><%= product.description %></p>
+      
+      <div class="product-meta">
+        <p > Availability : <span class="stock-info"> <strong> In Stock</strong> </span> </p>
+        <div class="size-info">
+          <p class="size-label">Available Sizes:</p>
+          <div class="sizes-list">
+            <% product.sizes.forEach((size) => { %>
+              <span class="size-item"><%= size.size %> (<%= size.dimensions %>)</span>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <form action="/cart/add" method="post" class="product-form">
+        <input type="hidden" name="productId" value="<%= product.id %>" />
+        <input type="hidden" name="color" id="selectedColor" value="<%= product.colors[0].name %>" />
+
+        <!-- Quantity Selection -->
+        <div class="form-group">
+          <label for="quantity">Quantity</label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            min="1"
+            max="<%= product.stock || 99 %>"
+            value="1"
+            required
+          />
+        </div>
+        <div> <span class="price large">₦<%= product.price.toFixed(2) %></span></div>
+
+        <button type="submit" class="button button-primary">Add to cart</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+  /* =========================
+   GLOBAL PRODUCT PAGE
+========================= */
+
+.product-page {
+  background: #f6f7fb;
+  padding: 2rem 1rem;
+  font-family: "Inter", sans-serif;
+}
+
+.single-product {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: auto;
+  align-items: start;
+}
+
+/* =========================
+   IMAGE SECTION
+========================= */
+
+.product-media {
+  position: sticky;
+  top: 2rem;
+}
+
+.image-slideshow {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+
+.slide {
+  display: none;
+  width: 100%;
+  height: 100%;
+  animation: fade 0.5s ease;
+}
+
+.slide.active {
+  display: block;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.slideshow-container:hover img {
+  transform: scale(1.03);
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* NAV BUTTONS */
+.slide-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: 0.3s;
+}
+
+.slide-nav:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slide-nav.prev { left: 1rem; }
+.slide-nav.next { right: 1rem; }
+
+/* INDICATORS */
+.slide-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.indicator.active {
+  width: 22px;
+  border-radius: 10px;
+  background: #111;
+}
+
+/* =========================
+   COLOR SWATCHES
+========================= */
+
+.color-swatches {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.color-label {
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #111;
+}
+
+.swatches-container {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  border: 1px solid #ddd;
+  padding: 0.5rem 0.9rem;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.color-swatch:hover {
+  border-color: #111;
+  transform: translateY(-2px);
+}
+
+.color-swatch.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* =========================
+   DETAILS SECTION
+========================= */
+
+.product-details {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+}
+
+.category-label {
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.product-details h1 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+  color: #111;
+}
+
+.product-description {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* META */
+.product-meta {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.stock-info {
+  color: #1a7f37;
+  font-weight: 600;
+}
+
+/* SIZES */
+.sizes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.size-item {
+  background: #f3f4f6;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* FORM */
+.product-form {
+  margin-top: 2rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  width: 100px;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* PRICE */
+.price.large {
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: inline-block;
+  margin: 1rem 0;
+}
+
+/* BUTTON */
+.button-primary {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 14px;
+  background: #111;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.button-primary:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+  .single-product {
+    grid-template-columns: 1fr;
+  }
+
+  .product-media {
+    position: static;
+  }
+}
+</style>
+
+<script>
+  const productColors = <%- JSON.stringify(product.colors) %>;
+
+  let currentColorIndex = 0;
+  let currentSlideIndex = 0;
+
+  function renderSlides() {
+    const images = productColors[currentColorIndex].images;
+
+    const slideshow = document.getElementById("slideshow");
+    const indicators = document.getElementById("indicators");
+
+    slideshow.innerHTML = `
+      ${images.map((img, i) => `
+        <div class="slide ${i === 0 ? "active" : ""}">
+          <img src="${img}" alt="Product view ${i + 1}" />
+        </div>
+      `).join("")}
+
+      <button class="slide-nav prev" onclick="changeSlide(-1)">&#10094;</button>
+      <button class="slide-nav next" onclick="changeSlide(1)">&#10095;</button>
+    `;
+
+    indicators.innerHTML = images.map((_, i) => `
+      <span class="indicator ${i === 0 ? "active" : ""}" onclick="goToSlide(${i})"></span>
+    `).join("");
+
+    currentSlideIndex = 0;
+  }
+
+  function changeSlide(n) {
+    const images = productColors[currentColorIndex].images;
+    const slides = document.querySelectorAll(".slide");
+    const indicators = document.querySelectorAll(".indicator");
+
+    currentSlideIndex += n;
+
+    if (currentSlideIndex >= images.length) currentSlideIndex = 0;
+    if (currentSlideIndex < 0) currentSlideIndex = images.length - 1;
+
+    updateSlides(slides, indicators);
+  }
+
+  function goToSlide(n) {
+    currentSlideIndex = n;
+    changeSlide(0);
+  }
+
+  function updateSlides(slides, indicators) {
+    slides.forEach(s => s.classList.remove("active"));
+    indicators.forEach(i => i.classList.remove("active"));
+
+    if (slides[currentSlideIndex]) {
+      slides[currentSlideIndex].classList.add("active");
+      indicators[currentSlideIndex].classList.add("active");
+    }
+  }
+
+  function selectColor(index, event) {
+    if (event) event.preventDefault();
+
+    currentColorIndex = index;
+    currentSlideIndex = 0;
+
+    document.getElementById("selectedColor").value =
+      productColors[index].name;
+
+    document.querySelectorAll(".color-swatch")
+      .forEach((btn, i) => {
+        btn.classList.toggle("active", i === index);
+      });
+
+    renderSlides();
+  }
+
+  // Init on page load
+  window.addEventListener("load", () => {
+    renderSlides();
+  });
+</script>
+
