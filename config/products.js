@@ -829,8 +829,6 @@ const productCatalog = [
         images: [
           "../assets/purple-flower-print-lady-dior-1.jpeg",
           "../assets/purple-flower-print-lady-dior-2.jpeg",
-
-         
         ]
       }
     ],

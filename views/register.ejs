@@ -1,14 +1,19 @@
 <%- include('../partials/header.ejs') %>
+<%- include('./partials/messages.ejs') %>
 
 <main class="page-content auth-page">
   <section class="auth-card">
     <h1>Create account</h1>
     <form action="/register" method="post">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
+      <input type="email" id="email" name="email" required value="<%= formData.email || '' %>" />
 
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required />
+
+      <label for="confirm-password">Confirm Password</label>
+      <input type="password" id="confirm-password" name="confirm-password" required />
 
       <button class="button button-primary" type="submit">Register</button>
     </form>
@@ -16,4 +21,4 @@
   </section>
 </main>
 
-<%- include('.../partials/footer.ejs') %>
+<%- include('../partials/footer.ejs') %>

@@ -56,6 +56,7 @@
       </div>
 
       <form action="/cart/add" method="post" class="product-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <input type="hidden" name="productId" value="<%= product.id %>" />
         <input type="hidden" name="color" id="selectedColor" value="<%= product.colors[0].name %>" />
 

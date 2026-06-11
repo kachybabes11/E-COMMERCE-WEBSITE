@@ -19,14 +19,14 @@
           <div class="cart-card">
             
             <div class="cart-info">
-              <h3><%= item.product.name %></h3>
+              <h3><%= item.product?.name || item.product_name || "Unnamed product" %></h3>
 
               <p class="cart-meta">
                 Color: <strong><%= item.color %></strong>
               </p>
 
               <p class="cart-meta">
-                Unit Price: ₦<%= item.product.price.toFixed(2) %>
+                Unit Price: ₦<%= (item.product?.price ?? item.unit_price).toFixed(2) %>
               </p>
 
               <p class="cart-meta">
@@ -36,11 +36,12 @@
 
             <div class="cart-price">
               <p>
-                ₦<%= (item.product.price * item.quantity).toFixed(2) %>
+                ₦<%= ((item.product?.price ?? item.unit_price) * item.quantity).toFixed(2) %>
               </p>
 
               <form action="/cart/remove" method="post">
-                <input type="hidden" name="productId" value="<%= item.product.id %>" />
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="productId" value="<%= item.product?.id || item.product_id %>" />
                 <input type="hidden" name="color" value="<%= item.color %>" />
                 <button class="button button-link">Remove</button>
               </form>
@@ -99,7 +100,7 @@
           Total: <span id="finalTotal">₦<%= (total + 5).toFixed(2) %></span>
         </p>
 
-        <form action="/paystack/pay" method="post">
+        <form action="/checkout" method="get">
           <button class="button button-primary full-width">
             Proceed to Checkout
           </button>

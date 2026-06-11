@@ -47,6 +47,7 @@
       <p>Get early access to drops, discounts, and exclusive styles.</p>
 
       <form action="/subscribe" method="post" class="newsletter-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <input type="email" name="email" placeholder="Your email address" required />
         <button type="submit">Join</button>
       </form>

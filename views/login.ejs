@@ -1,13 +1,14 @@
 <%- include('../partials/header.ejs') %>
+<%- include('./partials/messages.ejs') %>
 
 <main class="page-content auth-page">
   <div class="auth-card">
-    <!-- Login Form -->
-    <div id="login-form" class="auth-form">
+    <div class="auth-form">
       <h1>Welcome back</h1>
       <p style="color: #666; margin-bottom: 1.5rem;">Sign in to your BagCartel account</p>
-      
+
       <form action="/login" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <div>
           <label for="email">Email Address</label>
           <input type="email" id="email" name="email" required placeholder="you@example.com" />
@@ -30,37 +31,7 @@
       <% } %>
 
       <div class="form-toggle" style="margin-top: 1.5rem; text-align: center;">
-        <p style="margin: 0; color: #666;">Don't have an account? 
-          <button type="button" onclick="toggleForms()" class="form-toggle-btn">Sign up</button>
-        </p>
-      </div>
-    </div>
-
-    <!-- Register Form -->
-    <div id="register-form" class="auth-form" style="display: none;">
-      <h1>Create account</h1>
-      <p style="color: #666; margin-bottom: 1.5rem;">Join BagCartel and start shopping</p>
-      
-      <form action="/register" method="post">
-        <div>
-          <label for="register-email">Email Address</label>
-          <input type="email" id="register-email" name="email" required placeholder="you@example.com" />
-        </div>
-        <div>
-          <label for="register-password">Password</label>
-          <input type="password" id="register-password" name="password" required placeholder="••••••••" />
-        </div>
-        <div>
-          <label for="confirm-password">Confirm Password</label>
-          <input type="password" id="confirm-password" name="confirm-password" required placeholder="••••••••" />
-        </div>
-        <button type="submit" class="button button-primary" style="width: 100%; margin-top: 0.5rem;">Create Account</button>
-      </form>
-
-      <div class="form-toggle" style="margin-top: 1.5rem; text-align: center;">
-        <p style="margin: 0; color: #666;">Already have an account? 
-          <button type="button" onclick="toggleForms()" class="form-toggle-btn">Sign in</button>
-        </p>
+        <p style="margin: 0; color: #666;">Don't have an account? <a href="/register">Sign up</a></p>
       </div>
     </div>
   </div>

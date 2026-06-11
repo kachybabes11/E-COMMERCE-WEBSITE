@@ -1,0 +1,63 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-order-detail-page">
+  <section class="admin-detail-card">
+    <div class="header-row">
+      <div>
+        <h1>Order <%= order.order_number %></h1>
+        <p>Customer: <strong><%= order.customer_name %></strong> | <%= order.email %></p>
+      </div>
+      <form action="/admin/orders/<%= order.id %>/status" method="post">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <select name="status">
+          <% ['Pending','Processing','Shipped','Delivered','Cancelled'].forEach((statusOption) => { %>
+            <option value="<%= statusOption %>" <%= order.order_status === statusOption ? 'selected' : '' %>><%= statusOption %></option>
+          <% }) %>
+        </select>
+        <button class="button button-primary" type="submit">Update status</button>
+      </form>
+    </div>
+
+    <div class="metadata-grid">
+      <div><span>Payment</span><strong><%= order.payment_status %></strong></div>
+      <div><span>Method</span><strong><%= order.shipping_method %></strong></div>
+      <div><span>Shipping Fee</span><strong>₦<%= formatCurrency(order.shipping_fee) %></strong></div>
+      <div><span>Total</span><strong>₦<%= formatCurrency(order.total_amount) %></strong></div>
+    </div>
+
+    <div class="address-card">
+      <h2>Shipping Address</h2>
+      <p><%= order.shipping_address.street %></p>
+      <p><%= order.shipping_address.city %>, <%= order.shipping_address.state %></p>
+      <p><%= order.shipping_address.postalCode %>, <%= order.shipping_address.country %></p>
+      <p><strong>Phone:</strong> <%= order.phone %></p>
+    </div>
+
+    <div class="items-card">
+      <h2>Ordered Products</h2>
+      <% items.forEach((item) => { %>
+        <div class="item-row">
+          <div><strong><%= item.product_name %></strong><p><%= item.color %></p></div>
+          <div><%= item.quantity %></div>
+          <div>₦<%= formatCurrency(item.unit_price) %></div>
+          <div><strong>₦<%= formatCurrency(item.total_price) %></strong></div>
+        </div>
+      <% }) %>
+    </div>
+
+    <a href="/admin/orders" class="button button-secondary">Back to orders</a>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+.admin-order-detail-page { padding: 3rem 1rem; background: #f6f7fb; min-height: 100vh; }
+.admin-detail-card { max-width: 1100px; margin: auto; background: #fff; border-radius: 24px; padding: 2rem; box-shadow: 0 25px 55px rgba(0,0,0,0.12); }
+.header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.metadata-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.metadata-grid div { background: #f9fbff; padding: 1rem 1.2rem; border-radius: 16px; }
+.address-card, .items-card { background: #f9fbff; padding: 1.5rem; border-radius: 18px; margin-bottom: 1.5rem; }
+.item-row { display: grid; grid-template-columns: 2.2fr 0.7fr 1fr 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e8edf6; }
+.item-row:last-child { border-bottom: none; }
+</style>

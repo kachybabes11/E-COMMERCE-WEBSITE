@@ -1,0 +1,98 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-orders-page">
+  <section class="admin-orders-card">
+    <div class="admin-header">
+      <h1>Order Management</h1>
+      <form class="admin-actions" method="get" action="/admin/orders">
+        <input type="text" name="search" placeholder="Search orders" value="<%= search || '' %>" />
+        <select name="status">
+          <option value="">All statuses</option>
+          <% ['Pending','Processing','Shipped','Delivered','Cancelled'].forEach((statusOption) => { %>
+            <option value="<%= statusOption %>" <%= status === statusOption ? 'selected' : '' %>><%= statusOption %></option>
+          <% }) %>
+        </select>
+        <button class="button button-primary" type="submit">Filter</button>
+      </form>
+    </div>
+
+    <% if (!orders.length) { %>
+      <div class="empty-state">
+        <p>No orders found.</p>
+      </div>
+    <% } else { %>
+      <div class="orders-table">
+        <% orders.forEach((order) => { %>
+          <a class="order-row" href="/admin/orders/<%= order.id %>">
+            <div><strong><%= order.order_number %></strong></div>
+            <div><%= new Date(order.created_at).toLocaleDateString() %></div>
+            <div><%= order.customer_name %></div>
+            <div>₦<%= formatCurrency(order.total_amount) %></div>
+            <div><span class="order-status <%= order.order_status.toLowerCase() %>"><%= order.order_status %></span></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+.admin-orders-page {
+  padding: 3rem 1rem;
+  background: #f6f7fb;
+}
+
+.admin-orders-card {
+  max-width: 1200px;
+  margin: auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 25px 55px rgba(0,0,0,0.12);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-actions input,
+.admin-actions select {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+.orders-table {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.order-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.3fr 1fr 1fr;
+  padding: 1rem 1.2rem;
+  background: #f9fbff;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.order-status.pending { background: #fff3cd; color: #986d04; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.order-status.processing { background: #cfe2ff; color: #084298; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.order-status.shipped { background: #d1e7dd; color: #0f5132; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.order-status.delivered { background: #d1fccf; color: #1f6217; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.order-status.cancelled { background: #f8d7da; color: #842029; padding: 0.4rem 0.7rem; border-radius: 999px; }
+</style>

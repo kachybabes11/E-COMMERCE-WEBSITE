@@ -1,0 +1,99 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content order-detail-page">
+  <section class="order-detail-card">
+    <h1>Order <%= order.order_number %></h1>
+    <p class="subheading">Placed on <%= new Date(order.created_at).toLocaleString() %></p>
+
+    <div class="status-grid">
+      <div>
+        <span>Status</span>
+        <strong><%= order.order_status %></strong>
+      </div>
+      <div>
+        <span>Payment</span>
+        <strong><%= order.payment_status %></strong>
+      </div>
+      <div>
+        <span>Total</span>
+        <strong>₦<%= formatCurrency(order.total_amount) %></strong>
+      </div>
+    </div>
+
+    <div class="address-card">
+      <h2>Shipping Address</h2>
+      <p><%= order.shipping_address.street %></p>
+      <p><%= order.shipping_address.city %>, <%= order.shipping_address.state %></p>
+      <p><%= order.shipping_address.postalCode %>, <%= order.shipping_address.country %></p>
+      <p><strong>Phone:</strong> <%= order.phone %></p>
+    </div>
+
+    <div class="items-card">
+      <h2>Items</h2>
+      <% items.forEach((item) => { %>
+        <div class="item-row">
+          <div>
+            <strong><%= item.product_name %></strong>
+            <p><%= item.color %></p>
+          </div>
+          <div>
+            <p><%= item.quantity %> x ₦<%= formatCurrency(item.unit_price) %></p>
+            <p><strong>₦<%= formatCurrency(item.total_price) %></strong></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <a href="/orders" class="button button-secondary">Back to orders</a>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+.order-detail-page {
+  padding: 3rem 1rem;
+  background: #f6f7fb;
+  min-height: 100vh;
+}
+
+.order-detail-card {
+  max-width: 1000px;
+  margin: auto;
+  background: #fff;
+  border-radius: 26px;
+  padding: 2rem;
+  box-shadow: 0 28px 55px rgba(0,0,0,0.1);
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.status-grid div {
+  background: #f9fbff;
+  padding: 1rem;
+  border-radius: 16px;
+}
+
+.address-card,
+.items-card {
+  background: #f9fbff;
+  padding: 1.5rem;
+  border-radius: 18px;
+  margin-bottom: 1.5rem;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e8edf6;
+}
+
+.item-row:last-child { border-bottom: none; }
+</style>

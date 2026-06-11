@@ -1,0 +1,121 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content checkout-page">
+  <section class="checkout-card success-card">
+    <div class="success-icon">✅</div>
+    <h1>Thank you for your order!</h1>
+    <p class="thank-you">Your order has been processed successfully.</p>
+
+    <div class="order-details-card">
+      <div class="details-row">
+        <span>Order Number</span>
+        <strong><%= order.order_number %></strong>
+      </div>
+      <div class="details-row">
+        <span>Customer</span>
+        <strong><%= order.customer_name %></strong>
+      </div>
+      <div class="details-row">
+        <span>Order Date</span>
+        <strong><%= new Date(order.created_at).toLocaleString() %></strong>
+      </div>
+      <div class="details-row">
+        <span>Status</span>
+        <strong><%= order.order_status %></strong>
+      </div>
+      <div class="details-row">
+        <span>Total Amount</span>
+        <strong>₦<%= formatCurrency(order.total_amount) %></strong>
+      </div>
+    </div>
+
+    <div class="shipping-card">
+      <h2>Shipping Address</h2>
+      <p><%= order.shipping_address.street %></p>
+      <p><%= order.shipping_address.city %>, <%= order.shipping_address.state %></p>
+      <p><%= order.shipping_address.postalCode %>, <%= order.shipping_address.country %></p>
+    </div>
+
+    <div class="order-items-card">
+      <h2>Products Ordered</h2>
+      <% items.forEach((item) => { %>
+        <div class="item-row">
+          <div>
+            <strong><%= item.product_name %></strong>
+            <p><%= item.color %></p>
+          </div>
+          <div>
+            <p><%= item.quantity %> x ₦<%= formatCurrency(item.unit_price) %></p>
+            <p><strong>₦<%= formatCurrency(item.total_price) %></strong></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <a href="/orders" class="button button-primary">View your orders</a>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+.checkout-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1rem;
+  background: #f6f7fb;
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 760px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 2.5rem;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.12);
+}
+
+.success-card {
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.order-details-card,
+.shipping-card,
+.order-items-card {
+  text-align: left;
+  background: #f9fbff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.details-row,
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.order-items-card h2,
+.shipping-card h2 {
+  margin-top: 0;
+}
+
+.order-items-card .item-row {
+  border-bottom: 1px solid #e8edf6;
+  padding-bottom: 1rem;
+}
+
+.order-items-card .item-row:last-child {
+  border-bottom: none;
+}
+</style>
