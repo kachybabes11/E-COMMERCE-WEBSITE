@@ -69,14 +69,24 @@ const dbEnabled = Boolean(process.env.DATABASE_URL || (process.env.PG_USER && pr
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
 app.use(express.static(path.join(__dirname, "public")))
+app.disable("x-powered-by")
 app.use(cookieParser(process.env.COOKIE_SECRET || "bagcartelsecret"))
 app.use(bodyParser.urlencoded({ extended: true }))
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1)
+}
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "bagcartelsecret",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, sameSite: "lax" },
+    cookie: {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
   })
 )
 app.use(passport.initialize())
@@ -246,11 +256,6 @@ app.post(
   async (req, res, next) => {
     try {
       const errors = validationResult(req)
-      console.log('[DEBUG] Register handler body:', req.body)
-      console.log('[DEBUG] Register validation errors count:', errors.isEmpty() ? 0 : errors.array().length)
-      if (req.query.debug === '1') {
-        return res.json({ body: req.body, errors: errors.array() })
-      }
       const productId = Number(req.body.productId)
       const color = req.body.color
       const quantity = Number(req.body.quantity)
@@ -413,10 +418,22 @@ app.post(
         return res.render("checkout", { cart, subtotal, errors: errors.array(), formData })
       }
       const shippingMethod = req.body.shippingMethod
+      const lagosArea = req.body.lagosArea || ""
       let shippingFee = 0
+
       if (shippingMethod === "lagos") {
-        shippingFee = shippingFees[req.body.lagosArea] || 0
+        if (!shippingFees[lagosArea]) {
+          const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
+          return res.render("checkout", {
+            cart,
+            subtotal,
+            errors: [{ msg: "Please select a valid Lagos delivery area." }],
+            formData,
+          })
+        }
+        shippingFee = shippingFees[lagosArea]
       }
+
       const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
       const totalAmount = subtotal + shippingFee
       for (const item of cart) {
@@ -435,6 +452,7 @@ app.post(
         postalCode: req.body.postalCode,
         country: req.body.country || "Nigeria",
         shippingMethod,
+        lagosArea,
         shippingFee,
         totalAmount,
       }
@@ -524,7 +542,11 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
     for (const item of cart) {
       await reduceVariantStock(db, item.product_id, item.color, item.quantity)
     }
-    await clearCart(db, { userId: req.user.id })
+    if (dbEnabled) {
+      await clearCart(db, { userId: req.user.id })
+    } else {
+      req.session.cart = []
+    }
     req.session.checkout = null
     req.session.messages = [{ type: "success", text: "Order completed successfully." }]
     const orderDetail = await getOrderDetails(db, order.id)
@@ -700,19 +722,22 @@ app.post(
       const errors = validationResult(req)
       const formData = { email: req.body.email }
       if (!errors.isEmpty()) {
-        req.session.messages = errors.array().map((error) => ({ type: "error", text: error.msg }))
-        return res.status(400).render("register", { formData })
+        const messages = errors.array().map((error) => ({ type: "error", text: error.msg }))
+        res.locals.flashMessages = messages
+        return res.status(400).render("register", { formData, flashMessages: messages })
       }
       const confirmPassword = req.body['confirm-password'] || req.body.confirmPassword || req.body['confirmPassword']
       if (confirmPassword && confirmPassword !== req.body.password) {
-        req.session.messages = [{ type: "error", text: "Passwords do not match." }]
-        return res.status(400).render("register", { formData })
+        const messages = [{ type: "error", text: "Passwords do not match." }]
+        res.locals.flashMessages = messages
+        return res.status(400).render("register", { formData, flashMessages: messages })
       }
       const { email, password } = req.body
       const existingUser = await getUserByEmail(email)
       if (existingUser) {
-        req.session.messages = [{ type: "error", text: "Email already registered." }]
-        return res.status(409).render("register", { formData })
+        const messages = [{ type: "error", text: "Email already registered." }]
+        res.locals.flashMessages = messages
+        return res.status(409).render("register", { formData, flashMessages: messages })
       }
       const hashedPassword = await bcrypt.hash(password, saltRounds)
       const newUser = await createUser(email, hashedPassword)
@@ -722,6 +747,24 @@ app.post(
         req.session.messages = [{ type: "success", text: "Account created successfully." }]
         res.redirect("/")
       })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+app.post(
+  "/subscribe",
+  body("email").isEmail().withMessage("Please enter a valid email address."),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        req.session.messages = errors.array().map((error) => ({ type: "error", text: error.msg }))
+        return res.redirect(req.get("Referrer") || "/")
+      }
+      req.session.messages = [{ type: "success", text: "Thanks for subscribing!" }]
+      res.redirect(req.get("Referrer") || "/")
     } catch (error) {
       next(error)
     }

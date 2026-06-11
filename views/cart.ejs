@@ -60,44 +60,8 @@
           Subtotal: <span>₦<%= total.toFixed(2) %></span>
         </p>
 
-        <!-- SHIPPING OPTIONS -->
-      <div class="shipping-box">
-  <h3>Shipping Method</h3>
-
-  <!-- PICKUP -->
-  <label>
-    <input type="radio" name="shipping" value="pickup" checked />
-    Pickup (Free)
-  </label>
-
-  <!-- LAGOS -->
-  <label>
-    <input type="radio" name="shipping" value="lagos" />
-    Lagos Delivery
-  </label>
-
-  <div id="lagosDropdown" class="hidden">
-    <select id="lagosArea">
-      <option value="ikeja">Ikeja — ₦3,000</option>
-      <option value="lekki">Lekki — ₦5,000</option>
-      <option value="yaba">Yaba — ₦2,500</option>
-      <option value="ajah">Ajah — ₦6,000</option>
-    </select>
-  </div>
-
-  <!-- OUTSIDE LAGOS -->
-  <label>
-    <input type="radio" name="shipping" value="outside" />
-    Outside Lagos (Price on request)
-  </label>
-
-  <p id="outsideNote" class="hidden">
-    Delivery fee will be negotiated after order confirmation.
-  </p>
-</div>
-
         <p class="summary-line total">
-          Total: <span id="finalTotal">₦<%= (total + 5).toFixed(2) %></span>
+          Total: <span>₦<%= total.toFixed(2) %></span>
         </p>
 
         <form action="/checkout" method="get">
@@ -118,23 +82,6 @@
    CART PAGE STYLING
 ========================= */
 
-.hidden {
-  display: none;
-}
-
-.shipping-box select {
-  margin-top: 0.5rem;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  width: 100%;
-}
-
-#outsideNote {
-  margin-top: 0.8rem;
-  font-size: 0.9rem;
-  color: #ff4d4d;
-}
 
 .cart-page {
   padding: 3rem 1.5rem;
@@ -334,60 +281,5 @@
   }
 }
 </style>
-
-<script>
-const radios = document.querySelectorAll('input[name="shipping"]')
-const lagosDropdown = document.getElementById("lagosDropdown")
-const outsideNote = document.getElementById("outsideNote")
-
-const lagosArea = document.getElementById("lagosArea")
-
-const baseTotal = <%= total %>
-
-const lagosPrices = {
-  ikeja: 3000,
-  lekki: 5000,
-  yaba: 2500,
-  ajah: 6000
-}
-
-let shippingCost = 0
-
-function updateTotal() {
-  document.getElementById("finalTotal").innerText =
-    `₦${(baseTotal + shippingCost).toLocaleString()}`
-}
-
-radios.forEach(radio => {
-  radio.addEventListener("change", () => {
-
-    if (radio.value === "pickup") {
-      lagosDropdown.classList.add("hidden")
-      outsideNote.classList.add("hidden")
-      shippingCost = 0
-    }
-
-    if (radio.value === "lagos") {
-      lagosDropdown.classList.remove("hidden")
-      outsideNote.classList.add("hidden")
-      shippingCost = lagosPrices[lagosArea.value]
-    }
-
-    if (radio.value === "outside") {
-      lagosDropdown.classList.add("hidden")
-      outsideNote.classList.remove("hidden")
-      shippingCost = 0
-    }
-
-    updateTotal()
-  })
-})
-
-// when user changes area
-lagosArea.addEventListener("change", () => {
-  shippingCost = lagosPrices[lagosArea.value]
-  updateTotal()
-})
-</script>
 
 <%- include('../partials/footer.ejs') %>

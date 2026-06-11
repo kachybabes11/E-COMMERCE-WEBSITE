@@ -2,66 +2,103 @@
 
 <main class="page-content checkout-page">
   <section class="checkout-card">
+    <h1>Checkout</h1>
+    <p class="checkout-note">Complete your order details and pay securely with Paystack.</p>
 
-    <div class="success-icon">🎉</div>
+    <% if (errors && errors.length) { %>
+      <div class="form-errors">
+        <ul>
+          <% errors.forEach((error) => { %>
+            <li><%= error.msg %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
 
-    <h1>Order Confirmed</h1>
+    <form action="/checkout" method="post" class="checkout-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
-    <p class="thank-you">
-      Thanks for shopping with <strong>BagCartel</strong>.
-      Your order has been successfully placed.
-    </p>
-
-    <!-- ORDER SUMMARY -->
-    <div class="order-summary">
-
-      <h2>Order Summary</h2>
-
-      <div class="summary-row">
-        <span>Subtotal</span>
-        <span>₦<%= subtotal.toLocaleString() %></span>
+      <div class="form-group">
+        <label for="customerName">Full Name</label>
+        <input id="customerName" name="customerName" value="<%= formData.customerName || "" %>" required />
       </div>
 
-      <div class="summary-row">
-        <span>Shipping Method</span>
-        <span><%= shipping %></span>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input id="phone" name="phone" value="<%= formData.phone || "" %>" required />
       </div>
 
-      <% if (shipping === "lagos") { %>
+      <div class="form-group">
+        <label for="street">Street Address</label>
+        <input id="street" name="street" value="<%= formData.street || "" %>" required />
+      </div>
+
+      <div class="grid-two">
+        <div class="form-group">
+          <label for="city">City</label>
+          <input id="city" name="city" value="<%= formData.city || "" %>" required />
+        </div>
+        <div class="form-group">
+          <label for="state">State</label>
+          <input id="state" name="state" value="<%= formData.state || "" %>" required />
+        </div>
+      </div>
+
+      <div class="grid-two">
+        <div class="form-group">
+          <label for="postalCode">Postal Code</label>
+          <input id="postalCode" name="postalCode" value="<%= formData.postalCode || "" %>" required />
+        </div>
+        <div class="form-group">
+          <label for="country">Country</label>
+          <input id="country" name="country" value="<%= formData.country || "Nigeria" %>" />
+        </div>
+      </div>
+
+      <div class="shipping-group">
+        <h2>Shipping Method</h2>
+
+        <label>
+          <input type="radio" name="shippingMethod" value="pickup" <%= (formData.shippingMethod === "pickup" || !formData.shippingMethod) ? "checked" : "" %> /> Pickup (Free)
+        </label>
+
+        <label>
+          <input type="radio" name="shippingMethod" value="lagos" <%= formData.shippingMethod === "lagos" ? "checked" : "" %> /> Lagos Delivery
+        </label>
+
+        <div class="lagos-area">
+          <label for="lagosArea">Lagos Delivery Area</label>
+          <select id="lagosArea" name="lagosArea">
+            <option value="ikeja" <%= formData.lagosArea === "ikeja" ? "selected" : "" %>>Ikeja — ₦3,000</option>
+            <option value="lekki" <%= formData.lagosArea === "lekki" ? "selected" : "" %>>Lekki — ₦5,000</option>
+            <option value="yaba" <%= formData.lagosArea === "yaba" ? "selected" : "" %>>Yaba — ₦2,500</option>
+            <option value="ajah" <%= formData.lagosArea === "ajah" ? "selected" : "" %>>Ajah — ₦6,000</option>
+          </select>
+        </div>
+
+        <label>
+          <input type="radio" name="shippingMethod" value="outside" <%= formData.shippingMethod === "outside" ? "checked" : "" %> /> Outside Lagos (Fee negotiated)
+        </label>
+      </div>
+
+      <div class="order-summary">
+        <h2>Order Summary</h2>
         <div class="summary-row">
-          <span>Lagos Area</span>
-          <span><%= lagosArea %></span>
+          <span>Subtotal</span>
+          <strong>₦<%= subtotal.toFixed(2) %></strong>
         </div>
-
-        <div class="summary-row">
-          <span>Shipping Fee</span>
-          <span>₦<%= shippingCost.toLocaleString() %></span>
+        <div class="summary-row total">
+          <span>Total</span>
+          <strong>₦<%= subtotal.toFixed(2) %></strong>
         </div>
-      <% } %>
-
-      <% if (shipping === "outside") { %>
-        <div class="summary-row warning">
-          <span>Outside Lagos</span>
-          <span>Fee will be negotiated</span>
-        </div>
-      <% } %>
-
-      <div class="summary-row total">
-        <span>Total</span>
-        <span>₦<%= total.toLocaleString() %></span>
       </div>
 
-    </div>
-
-    <a href="/products" class="button button-primary">
-      Continue Shopping
-    </a>
-
+      <button type="submit" class="button button-primary full-width">Pay with Paystack</button>
+    </form>
   </section>
 </main>
 
 <style>
-  /* CHECKOUT PAGE */
 .checkout-page {
   display: flex;
   justify-content: center;
@@ -71,79 +108,131 @@
 }
 
 .checkout-card {
+  width: min(100%, 720px);
   background: #fff;
-  padding: 3rem 2rem;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 550px;
-  text-align: center;
+  padding: 2.5rem;
+  border-radius: 24px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.08);
 }
 
-.success-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
 .checkout-card h1 {
-  color: #1a1a2e;
   margin-bottom: 0.5rem;
-}
-
-.thank-you {
-  color: #666;
-  margin-bottom: 2rem;
-}
-
-/* ORDER SUMMARY */
-.order-summary {
-  text-align: left;
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f9f9ff;
-  border-radius: 15px;
-  border: 1px solid #eee;
-}
-
-.order-summary h2 {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
   color: #1a1a2e;
+}
+
+.checkout-note {
+  color: #5f6572;
+  margin-bottom: 1.5rem;
+}
+
+.form-errors {
+  background: #ffe8e8;
+  border: 1px solid #f2c2c2;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.form-errors ul {
+  margin: 0;
+  padding-left: 1.3rem;
+  color: #a02828;
+}
+
+.checkout-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-group {
+  display: grid;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.9rem 1rem;
+  border: 1px solid #d8dbe1;
+  border-radius: 14px;
+  font-size: 1rem;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.shipping-group {
+  border: 1px solid #eceef2;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: #f9f9ff;
+}
+
+.shipping-group h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.shipping-group label {
+  display: block;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+}
+
+.lagos-area {
+  margin-bottom: 1rem;
+}
+
+.order-summary {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: #f6f8ff;
+  border: 1px solid #e8ecff;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.8rem;
-  color: #444;
-  font-size: 0.95rem;
+  color: #30343f;
 }
 
 .summary-row.total {
-  font-weight: bold;
-  font-size: 1.2rem;
-  border-top: 1px solid #ddd;
+  font-weight: 700;
+  border-top: 1px solid #dee1ed;
   padding-top: 1rem;
-  margin-top: 1rem;
-  color: #1a1a2e;
-}
-
-.summary-row.warning {
-  color: #ff4d4d;
 }
 
 .button {
-  display: inline-block;
-  margin-top: 2rem;
-  padding: 0.9rem 1.4rem;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 600;
+  padding: 1rem 1.2rem;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
 }
 
 .button-primary {
+  width: 100%;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.full-width {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .grid-two {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 
