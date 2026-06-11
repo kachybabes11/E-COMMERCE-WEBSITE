@@ -301,8 +301,8 @@ const productCatalog = [
       {
         name: "Wine",
         images: [
-          "../assets/wine-dome-1.jpeg",
-          "../assets/wine-dome-2.jpeg"
+          "../assets/Wine-dome-1.jpeg",
+          "../assets/Wine-dome-2.jpeg"
           
         ],
       },
@@ -324,8 +324,8 @@ const productCatalog = [
       {
         name: "Pink",
         images: [
-          "../assets/pink-miss-gail-2.jpeg",
-          "../assets/pink-miss-gail-1.jpeg",
+          "../assets/Pink-miss-gail-2.jpeg",
+          "../assets/Pink-miss-gail-1.jpeg",
           
         ],
       }
@@ -377,8 +377,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-striped-heather-1.jpeg",
-          "../assets/black-striped-heather-2.jpeg",
+          "../assets/Black-striped-heather-1.jpeg",
+          "../assets/Black-striped-heather-2.jpeg",
          
         ],
       },
@@ -401,9 +401,9 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-stoned-valentino-1.jpeg",
-          "../assets/black-stoned-valentino-2.jpeg",
-          "../assets/black-stoned-valentino-3.jpeg"
+          "../assets/Black-stoned-valentino-1.jpeg",
+          "../assets/Black-stoned-valentino-2.jpeg",
+          "../assets/Black-stoned-valentino-3.jpeg"
         ],
       },
     
@@ -426,20 +426,20 @@ const productCatalog = [
         name: "Black",
         images: [
           "../assets/thumbnails/thumbnail-5.jpeg",
-          "../assets/black-coach-bag-1.jpeg",
+          "../assets/Black-Coach-Bag-1.jpeg",
 
         ],
       },
             {
         name: "Light Brown",
         images: [
-          "../assets/brown-coach-bag-2.jpeg"
+          "../assets/Brown-Coach-Bag-2.jpeg"
         ],
       },
             {
         name: "Dark Brown",
         images: [
-          "../assets/brown-coach-bag-3.jpeg"
+          "../assets/Brown-Coach-Bag-3.jpeg"
         ],
       },
             {
@@ -468,8 +468,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-plain-heather-1.jpeg",
-          "../assets/black-plain-heather-2.jpeg",
+          "../assets/Black-plain-heather-1.jpeg",
+          "../assets/Black-plain-heather-2.jpeg",
           
         ],
       },
@@ -492,9 +492,9 @@ const productCatalog = [
       {
         name: "Red",
         images: [
-          "../assets/red-miss-gail-1.jpeg",
-          "../assets/red-miss-gail-2.jpeg",
-          "../assets/red-miss-gail-3.jpeg"
+          "../assets/Red-miss-gail-1.jpeg",
+          "../assets/Red-miss-gail-2.jpeg",
+          "../assets/Red-miss-gail-3.jpeg"
         ],
       },
      
@@ -516,8 +516,8 @@ const productCatalog = [
       {
         name: "Blue",
         images: [
-          "../assets/blue-kurt-geiger-1.jpeg",
-          "../assets/blue-kurt-geiger-2.jpeg",
+          "../assets/Blue-kurt-geiger-1.jpeg",
+          "../assets/Blue-kurt-geiger-2.jpeg",
 
         ]
       }
@@ -555,8 +555,8 @@ const productCatalog = [
        {
         name: "Black",
         images: [
-          "../assets/black-patent-leather-lady-djoy-2.jpeg",
-         "../assets/black-patent-leather-lady-djoy-1.jpeg"
+          "../assets/Black-patent-leather-lady-djoy-2.jpeg",
+         "../assets/Black-patent-leather-lady-djoy-1.jpeg"
         ],
       }
     ],
@@ -585,7 +585,7 @@ const productCatalog = [
       {
         name: "White",
         images: [
-         "../assets/white-purse.jpeg",
+         "../assets/White-purse.jpeg",
         
         ],
       }
@@ -607,9 +607,9 @@ const productCatalog = [
       {
         name: "Red",
         images: [
-          "../assets/red-YSL-1.jpeg",
-          "../assets/red-YSL-2.jpeg",
-          "../assets/red-YSL-3.jpeg",
+          "../assets/Red-YSL-1.jpeg",
+          "../assets/Red-YSL-2.jpeg",
+          "../assets/Red-YSL-3.jpeg",
         ]
       }
     ],
@@ -630,16 +630,16 @@ const productCatalog = [
       {
         name: "Pink with silver platings",
         images: [
-          "../assets/pink-lady-dior-with-adornments-3.jpeg",
-          "../assets/pink-lady-dior-with-adornments-1.jpeg",
+          "../assets/Pink-lady-dior-with-adornments-3.jpeg",
+          "../assets/Pink-lady-dior-with-adornments-1.jpeg",
 
         ],
       },
       {
         name: "Black with Gold Platings",
         images: [
-         "../assets/black-lady-dior-with-gold-adornment-2.jpeg",
-         "../assets/black-lady-dior-with-gold-adornment-1.jpeg",
+         "../assets/Black-lady-dior-with-gold-adornment-2.jpeg",
+         "../assets/Black-lady-dior-with-gold-adornment-1.jpeg",
         
         ],
       }
@@ -661,8 +661,8 @@ const productCatalog = [
       {
         name: "Fendi Print",
         images: [
-          "../assets/fendi-print-dome-1.jpeg",
-          "../assets/fendi-print-dome-2.jpeg",
+          "../assets/Fendi-print-dome-1.jpeg",
+          "../assets/Fendi-print-dome-2.jpeg",
           
         ]
       }
@@ -684,8 +684,8 @@ const productCatalog = [
       {
         name: "Red",
         images: [
-          "../assets/white-designed-kurt-geiger-1.jpeg",
-          "../assets/white-designed-kurt-geiger-2.jpeg",
+          "../assets/White-designed-kurt-geiger-1.jpeg",
+          "../assets/White-designed-kurt-geiger-2.jpeg",
           
         ]
       }
@@ -707,8 +707,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-matte-leather-lady-djoy-1.jpeg",
-          "../assets/black-matte-leather-lady-djoy-2.jpeg",
+          "../assets/Black-matte-leather-lady-djoy-1.jpeg",
+          "../assets/Black-matte-leather-lady-djoy-2.jpeg",
          
         ]
       }
@@ -728,16 +728,16 @@ const productCatalog = [
       {
         name: "Burgundy",
         images: [
-          "../assets/burgundy-kurt-geiger-1.jpeg",
-          "../assets/burgundy-kurt-geiger-2.jpeg",
+          "../assets/Burgundy-kurt-geiger-1.jpeg",
+          "../assets/Burgundy-kurt-geiger-2.jpeg",
 
         ],
       },
       {
         name: "Black",
         images: [
-         "../assets/black-kurt-geiger-3.jpeg",
-         "../assets/black-kurt-geiger-4.jpeg",
+         "../assets/Black-kurt-geiger-3.jpeg",
+         "../assets/Black-kurt-geiger-4.jpeg",
         
         ],
       }
@@ -745,7 +745,7 @@ const productCatalog = [
   },
      {
     id: 26,
-    name: "Lady D'joy Matte Leather",
+    name: "Kurt Geiger Flip Over",
     category: "Shoulder Bags",
     price: 39.99,
     stock: 14,
@@ -759,8 +759,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-         "../assets/black-kurt-geiger-2.jpeg",
-          "../assets/black-kurt-geiger-1.jpeg",
+         "../assets/Black-kurt-geiger-2.jpeg",
+          "../assets/Black-kurt-geiger-1.jpeg",
          
         ]
       }
@@ -782,7 +782,7 @@ const productCatalog = [
       {
         name: "Dior Print",
         images: [
-          "../assets/dior-print-dome-2.jpeg",
+          "../assets/Dior-print-dome-2.jpeg",
          
         ]
       }
@@ -804,8 +804,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-matte-leather-lady-dior-1.jpeg",
-          "../assets/black-matte-leather-lady-dior-2.jpeg",
+          "../assets/Black-matte-leather-lady-dior-1.jpeg",
+          "../assets/Black-matte-leather-lady-dior-2.jpeg",
          
         ]
       }
@@ -827,8 +827,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/purple-flower-print-lady-dior-1.jpeg",
-          "../assets/purple-flower-print-lady-dior-2.jpeg",
+          "../assets/Purple-flower-print-lady-dior-1.jpeg",
+          "../assets/Purple-flower-print-lady-dior-2.jpeg",
         ]
       }
     ],
@@ -849,8 +849,8 @@ const productCatalog = [
       {
         name: "Dior Print",
         images: [
-          "../assets/dior-print-lady-dior-1.jpeg",
-          "../assets/dior-print-lady-dior-2.jpeg",
+          "../assets/Dior-print-lady-dior-1.jpeg",
+          "../assets/Dior-print-lady-dior-2.jpeg",
          
         ]
       }
@@ -872,8 +872,8 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "../assets/black-matte-leather-lady-djoy-1.jpeg",
-          "../assets/black-matte-leather-lady-djoy-2.jpeg",
+          "../assets/Black-matte-leather-lady-djoy-1.jpeg",
+          "../assets/Black-matte-leather-lady-djoy-2.jpeg",
          
         ]
       }
