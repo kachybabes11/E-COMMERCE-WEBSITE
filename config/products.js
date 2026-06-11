@@ -1,73 +1,52 @@
 const productCatalog = [
   {
     id: 1,
-    name: "Ruffle Sleeve Mini Dress",
+    name: "Miss Gail Bag",
     category: "Mini",
-    price: 30464.99,
+    price: 25000,
     stock: 12,
-    description: "A feminine mini dress with soft ruffle sleeves, perfect for day-to-night styling.",
+    description: "A feminine mini dag with attention to detail, perfect for day-to-night styling.",
     sizes: [
-      { size: "XS", dimensions: "32\"W x 24\"H" },
       { size: "S", dimensions: "34\"W x 25\"H" },
-      { size: "M", dimensions: "36\"W x 26\"H" },
-      { size: "L", dimensions: "38\"W x 27\"H" },
-      { size: "XL", dimensions: "40\"W x 28\"H" },
     ],
+
     colors: [
       {
-        name: "Black",
+        name: "Light Purple",
         images: [
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1515407573799-2d12d74f1a19?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1534070481839-586dc1a90f11?auto=format&fit=crop&w=900&q=80",
+          "../assets/Light-purple-miss-gail-1.jpeg",
+          "../assets/Light-purple-miss-gail-2.jpeg",
+          "../assets/Light-purple-miss-gail-3.jpeg",
         ],
-      },
-      {
-        name: "Navy",
-        images: [
-          "https://images.unsplash.com/photo-1506228613408-eca07ce68773?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1515407573799-2d12d74f1a19?auto=format&fit=crop&w=900&q=80",
-          "facebook-logo-blue-circle_705838-12823.avif",
-        ],
-      },
+      }
     ],
   },
   {
     id: 2,
-    name: "High-Waist Skinny Jeans",
+    name: "Black and white YSL Bag",
     category: "Mini",
-    price: 42.99,
+    price: 18000,
     stock: 10,
-    description: "Modern high-waist skinny jeans with stretch for all-day comfort and a sleek silhouette.",
+    description: "Modern day bag for all-day comfort and a sleek silhouette.",
     sizes: [
-      { size: "24", dimensions: "24\"W x 30\"L" },
-      { size: "26", dimensions: "26\"W x 30\"L" },
-      { size: "28", dimensions: "28\"W x 30\"L" },
-      { size: "30", dimensions: "30\"W x 32\"L" },
-      { size: "32", dimensions: "32\"W x 32\"L" },
+    
+      { size: "M", dimensions: "26\"W x 30\"L" },
+      
     ],
     colors: [
       {
-        name: "Dark Blue",
+        name: "Black & White",
         images: [
-          "https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1542272604-787c62d465d1?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1565084905088-e5af5e0b9c81?auto=format&fit=crop&w=900&q=80",
+          "../assets/Black-and-white-YSL-1.jpeg",
+          "../assets/Black-and-white-YSL-2.jpeg",
+          "../assets/Black-and-white-YSL-3.jpeg",
         ],
-      },
-      {
-        name: "Black",
-        images: [
-          "https://images.unsplash.com/photo-1542272604-787c62d465d1?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1565084905088-e5af5e0b9c81?auto=format&fit=crop&w=900&q=80",
-        ],
-      },
+      }
     ],
   },
   {
     id: 3,
-    name: "Classic Leather Tote",
+    name: "Classic Leather LV Bag",
     category: "XL",
     price: 54.99,
     stock: 8,
@@ -79,92 +58,124 @@ const productCatalog = [
     ],
     colors: [
       {
-        name: "Cognac",
+        name: "Red",
         images: [
-          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80",
+          "../assets/WhatsApp Image 2026-06-10 at 17.02.40 (6).jpeg",
+          "../assets/Red-LV-beaded-2.jpeg",
+          "../assets/Red-LV-beaded-1.jpeg",
         ],
       },
       {
-        name: "Black",
+        name: "White",
         images: [
-          "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1451649517753-7be0f6b1d565?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80",
+          "../assets/White-LV-beaded-1.jpeg",
+          "../assets/White-LV-beaded-2.jpeg",
         ],
       },
+      {
+        name: "Gold",
+        images: [
+          "../assets/Gold-LV-beaded-1.jpeg",
+          "../assets/Gold-LV-beaded-2.jpeg",
+        ],
+      }
     ],
   },
   {
     id: 4,
-    name: "Textured Knit Sweater",
-    category: "Large",
-    price: 29.99,
-    stock: 15,
+    name: "Fendi Shoulder Bag",
+    category: "Mini",
+    price: 15000,
+    stock: 1,
     description: "A cozy knit sweater in a neutral hue, designed for effortless layering all season.",
     sizes: [
-      { size: "XS", dimensions: "32\"W x 22\"L" },
+     
       { size: "S", dimensions: "34\"W x 23\"L" },
-      { size: "M", dimensions: "36\"W x 24\"L" },
-      { size: "L", dimensions: "38\"W x 25\"L" },
     ],
     colors: [
       {
-        name: "Cream",
+        name: "Print",
         images: [
-          "https://images.unsplash.com/photo-1495121605193-b116b5b9c5d5?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1508919801527-2c5413f117d2?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80",
-        ],
-      },
-      {
-        name: "Gray",
-        images: [
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1508919801527-2c5413f117d2?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1506435773649-6f3db1b912d9?auto=format&fit=crop&w=900&q=80",
+          "../assets/Fendi-shoulder-bag-1.jpeg",
+          "../assets/Fendi-shoulder-bag-2.jpeg",
+          "../assets/Fendi-shoulder-bag-3.jpeg",
+
         ],
       },
     ],
   },
   {
     id: 5,
-    name: "Square Toe Sandals",
+    name: "Bottega Venetta Arindion Top Closed",
     category: "Unbranded",
     price: 36.99,
     stock: 5,
     description: "Comfortable square-toe sandals built for everyday wear and versatile styling.",
     sizes: [
-      { size: "5", dimensions: "8\"W" },
-      { size: "6", dimensions: "8.5\"W" },
-      { size: "7", dimensions: "9\"W" },
-      { size: "8", dimensions: "9.5\"W" },
-      { size: "9", dimensions: "10\"W" },
-      { size: "10", dimensions: "10.5\"W" },
+
+      { size: "S", dimensions: "8.5\"W" },
+      
     ],
     colors: [
-      {
-        name: "Gold",
+       {
+        name: "Dark Green",
         images: [
-          "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
+          "../assets/thumbnails/thumbnail-2.jpeg",
+          "../assets/Green-bottega-veneta1..jpeg",
+           "../assets/Green-bottega-veneta2..jpeg"
         ],
       },
       {
-        name: "Silver",
+        name: "Gold",
         images: [
-          "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=900&q=80",
+          "../assets/Gold-bottega-veneta-1.jpeg",
+          "../assets/Gold-bottega-veneta-2.jpeg",
+          "../assets/Gold-bottega-veneta-3.jpeg",
         ],
+      },
+      {
+        name: "Burgundy",
+        images: [
+          "../assets/Burgundy-bottega-veneta-1.jpeg",
+          "../assets/Burgundy-bottega-veneta-2.jpeg",
+          "../assets/Burgundy-bottega-veneta-3.jpeg",
+        ],
+      },
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-bottega-veneta-2.jpeg",
+          "../assets/Brown-bottega-veneta-1.jpeg",
+          "../assets/Brown-bottega-veneta-3.jpeg",
+        ],
+      },
+      {
+        name: "White",
+        images: [
+          "../assets/white-bottega-veneta-1.jpeg",
+          "../assets/white-bottega-veneta-2.jpeg",
+          "../assets/white-bottega-veneta-3.jpeg",
+        ],
+      },
+      {
+        name: "Black A",
+        images: [
+          "../assets/Black-bottega-veneta-new-design-1.jpeg",
+          "../assets/Black-bottega-veneta-new-design-2.jpeg",
+        ],
+      },
+      {
+        name: "Black B",
+        images: [
+          "../assets/Black-bottega-veneta-old-design-1.jpeg",
+          "../assets/Black-bottega-veneta-old-design-2.jpeg",
+        ]
       },
     ],
   },
   {
     id: 6,
-    name: "Statement Hoop Earrings",
+    name: "Lady Dior Patent Leather Set",
     category: "Branded",
     price: 12.99,
     stock: 20,
@@ -176,59 +187,183 @@ const productCatalog = [
     ],
     colors: [
       {
-        name: "Gold",
+        name: "Black with Gold platings",
         images: [
-          "https://images.unsplash.com/photo-1099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1632521674857-8f18e08bda5f?auto=format&fit=crop&w=900&q=80",
+          "../assets/Lady-dior-patent-set.jpeg",
+          "../assets/Black-patent-leather-lady-dior-1.jpeg",
+          "../assets/Black-patent-leather-lady-dior-2.jpeg",
+        ],
+      },
+         {
+        name: "Black with Silver platings",
+        images: [
+          "../assets/Black-patent-leather-lady-dior-3.jpeg",
+          "../assets/Black-patent-leather-lady-dior-4.jpeg",
         ],
       },
       {
-        name: "Silver",
+        name: "Red",
         images: [
-          "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1632521674857-8f18e08bda5f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1099649105-f69ad21f3246?auto=format&fit=crop&w=900&q=80",
+          "../assets/Red-patent-leather-lady-dior-1.jpeg",
+          "../assets/Red-patent-leather-lady-dior-2.jpeg",
+        ],
+      },
+      {
+        name: "Green",
+        images: [
+          "../assets/Green-patent-leather-lady-dior-1.jpeg",
+          "../assets/Green-patent-leather-lady-dior-2.jpeg",
+        ],
+      },
+      {
+        name: "Pink",
+        images: [
+          "../assets/Pink-patent-leather-lady-dior-1.jpeg",
+          "../assets/pink-patent-leather-lady-dior-2.jpeg",
         ],
       },
     ],
   },
   {
     id: 7,
-    name: "Tailored Blazer",
+    name: "Casual Flip Over Purse",
     category: "Medium",
     price: 62.99,
     stock: 9,
     description: "A structured blazer with sharp tailoring to elevate your everyday outfits.",
     sizes: [
-      { size: "XS", dimensions: "32\"W x 24\"L" },
+      
       { size: "S", dimensions: "34\"W x 25\"L" },
-      { size: "M", dimensions: "36\"W x 26\"L" },
-      { size: "L", dimensions: "38\"W x 27\"L" },
-      { size: "XL", dimensions: "40\"W x 28\"L" },
+      
     ],
     colors: [
       {
-        name: "Black",
+        name: "Green",
         images: [
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1559657348-f810a31eca6d?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1611832573519-1a6f37b5a5d5?auto=format&fit=crop&w=900&q=80",
+          "../assets/unbranded-green-and-cream-set.jpeg",
+          "../assets/Green-flipOver-with-stone-1.jpeg",
+          "../assets/Green-flipOver-with-stone-2.jpeg",
         ],
       },
       {
-        name: "Navy",
+        name: "Cream",
         images: [
-          "https://images.unsplash.com/photo-1559657348-f810a31eca6d?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1611832573519-1a6f37b5a5d5?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80",
+          "../assets/Cream-flipOver-with-stone-1.jpeg",
+          "../assets/Cream-flipOver-with-stone-2.jpeg",
         ],
       },
     ],
   },
   {
     id: 8,
-    name: "City Crossbody Bag",
+    name: "Dior Crossbody Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Black Dior Print",
+        images: [
+          "../assets/Dior-crossbag-1.jpeg",
+          "../assets/Dior-crossbag-2.jpeg",
+          "../assets/Dior-crossbag-3.jpeg"
+        ],
+      },
+    ],
+  },
+    {
+    id: 9,
+    name: "Dome Bags",
+    category: "Shoulder Bags",
+    price: 15000,
+    stock: 6,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+    
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/Dome-bags-set.jpeg",
+          "../assets/Black-dome-1.jpeg",
+          "../assets/Black-dome-2.jpeg"
+        ],
+      },
+      {
+        name: "Wine",
+        images: [
+          "../assets/wine-dome-1.jpeg",
+          "../assets/wine-dome-2.jpeg"
+          
+        ],
+      },
+    ],
+  },
+    {
+    id: 10,
+    name: "Miss Gail Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+    
+    ],
+    colors: [
+      {
+        name: "Pink",
+        images: [
+          "../assets/pink-miss-gail-2.jpeg",
+          "../assets/pink-miss-gail-1.jpeg",
+          
+        ],
+      }
+    ],
+  },
+    {
+    id: 11,
+    name: "Coach Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Coach with white strap",
+        images: [
+          "../assets/Different-handles-coach-bags.jpeg",
+          "../assets/Coach-football-with-white-strap-1.jpeg",
+          "../assets/Coach-football-with-white-strap-2.jpeg"
+        ],
+      },
+      {
+        name: "Coach with brown strap",
+        images: [
+          "../assets/Coach-football-with-brown-strap-1.jpeg",
+          "../assets/Coach-football-with-brown-strap-1.jpeg"
+        ],
+      },
+    ],
+  },
+    {
+    id: 12,
+    name: "Striped Heather Bag",
     category: "Shoulder Bags",
     price: 39.99,
     stock: 14,
@@ -242,21 +377,510 @@ const productCatalog = [
       {
         name: "Black",
         images: [
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80",
+          "../assets/black-striped-heather-1.jpeg",
+          "../assets/black-striped-heather-2.jpeg",
+         
+        ],
+      },
+     
+    ],
+  },
+    {
+    id: 13,
+    name: "Stoned Valentino",
+    category: "Shoulder Bags",
+    price: 20000,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/black-stoned-valentino-1.jpeg",
+          "../assets/black-stoned-valentino-2.jpeg",
+          "../assets/black-stoned-valentino-3.jpeg"
+        ],
+      },
+    
+    ],
+  },
+    {
+    id: 14,
+    name: "Coach Shoulder Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/thumbnails/thumbnail-5.jpeg",
+          "../assets/black-coach-bag-1.jpeg",
+
+        ],
+      },
+            {
+        name: "Light Brown",
+        images: [
+          "../assets/brown-coach-bag-2.jpeg"
+        ],
+      },
+            {
+        name: "Dark Brown",
+        images: [
+          "../assets/brown-coach-bag-3.jpeg"
+        ],
+      },
+            {
+        name: "Green",
+        images: [
+          "../assets/Dior-crossbag-1.jpeg",
+          "../assets/Dior-crossbag-2.jpeg",
+          "../assets/Dior-crossbag-3.jpeg"
+        ],
+      },
+      
+      
+    ],
+  },
+      {
+    id: 15,
+    name: "Plain Heather Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/black-plain-heather-1.jpeg",
+          "../assets/black-plain-heather-2.jpeg",
+          
+        ],
+      },
+     
+    ],
+  },
+      {
+    id: 16,
+    name: "Miss Gail Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Red",
+        images: [
+          "../assets/red-miss-gail-1.jpeg",
+          "../assets/red-miss-gail-2.jpeg",
+          "../assets/red-miss-gail-3.jpeg"
+        ],
+      },
+     
+    ],
+  },
+  {
+    id: 17,
+    name: "Kurt Geiger Flip Over",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Blue",
+        images: [
+          "../assets/blue-kurt-geiger-1.jpeg",
+          "../assets/blue-kurt-geiger-2.jpeg",
+
+        ]
+      }
+    ],
+    },
+       {
+    id: 18,
+    name: "Lady D'joy Patent Leather",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Pink",
+        images: [
+          "../assets/Lady d'joy set.jpeg",
+         "../assets/Pink-patent-leather-lady-djoy-2.jpeg",
+         "../assets/Pink-patent-leather-lady-djoy-1.jpeg"
         ],
       },
       {
-        name: "Camel",
+        name: "Beige",
         images: [
-          "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80",
+         "../assets/Lady d'joy set.jpeg",
+          "../assets/Pink-patent-leather-lady-djoy-2.jpeg",
+         "../assets/WhatsApp Video 2026-06-10 at 17.02.37.mp4"
         ],
       },
+       {
+        name: "Black",
+        images: [
+          "../assets/black-patent-leather-lady-djoy-2.jpeg",
+         "../assets/black-patent-leather-lady-djoy-1.jpeg"
+        ],
+      }
     ],
   },
-]
+  {
+    id: 19,
+    name: "Chic Purses",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Green",
+        images: [
+          "../assets/Green-and-white-purses.jpeg",
+         "../assets/Green-purse-1.jpeg",
 
+        ],
+      },
+      {
+        name: "White",
+        images: [
+         "../assets/white-purse.jpeg",
+        
+        ],
+      }
+    ],
+  },
+  {
+    id: 20,
+    name: "YSL Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Red",
+        images: [
+          "../assets/red-YSL-1.jpeg",
+          "../assets/red-YSL-2.jpeg",
+          "../assets/red-YSL-3.jpeg",
+        ]
+      }
+    ],
+    },
+    {
+    id: 21,
+    name: "Lady Dior with Adornments",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "Small", dimensions: "8\"W x 6\"H" },
+      { size: "Medium", dimensions: "10\"W x 7\"H" },
+      { size: "Large", dimensions: "12\"W x 8\"H" },
+    ],
+    colors: [
+      {
+        name: "Pink with silver platings",
+        images: [
+          "../assets/pink-lady-dior-with-adornments-3.jpeg",
+          "../assets/pink-lady-dior-with-adornments-1.jpeg",
+
+        ],
+      },
+      {
+        name: "Black with Gold Platings",
+        images: [
+         "../assets/black-lady-dior-with-gold-adornment-2.jpeg",
+         "../assets/black-lady-dior-with-gold-adornment-1.jpeg",
+        
+        ],
+      }
+    ],
+  },
+    {
+    id: 22,
+    name: "Fendi Dome Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Fendi Print",
+        images: [
+          "../assets/fendi-print-dome-1.jpeg",
+          "../assets/fendi-print-dome-2.jpeg",
+          
+        ]
+      }
+    ],
+    },
+      {
+    id: 23,
+    name: "Kurt Geiger Flip Over",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Red",
+        images: [
+          "../assets/white-designed-kurt-geiger-1.jpeg",
+          "../assets/white-designed-kurt-geiger-2.jpeg",
+          
+        ]
+      }
+    ],
+    },
+      {
+    id: 24,
+    name: "Lady D'joy Matte Leather",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/black-matte-leather-lady-djoy-1.jpeg",
+          "../assets/black-matte-leather-lady-djoy-2.jpeg",
+         
+        ]
+      }
+    ],
+    },
+        {
+    id: 25,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Burgundy",
+        images: [
+          "../assets/burgundy-kurt-geiger-1.jpeg",
+          "../assets/burgundy-kurt-geiger-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+         "../assets/black-kurt-geiger-3.jpeg",
+         "../assets/black-kurt-geiger-4.jpeg",
+        
+        ],
+      }
+    ],
+  },
+     {
+    id: 26,
+    name: "Lady D'joy Matte Leather",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         "../assets/black-kurt-geiger-2.jpeg",
+          "../assets/black-kurt-geiger-1.jpeg",
+         
+        ]
+      }
+    ],
+    },
+    {
+    id: 27,
+    name: "Dior Dome Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Dior Print",
+        images: [
+          "../assets/dior-print-dome-2.jpeg",
+         
+        ]
+      }
+    ],
+    },
+    {
+    id: 28,
+    name: "Lady Dior Matte Leather",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/black-matte-leather-lady-dior-1.jpeg",
+          "../assets/black-matte-leather-lady-dior-2.jpeg",
+         
+        ]
+      }
+    ],
+    },
+    {
+    id: 29,
+    name: "Lady Dior Flowered Pattern",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/purple-flower-print-lady-dior-1.jpeg",
+          "../assets/purple-flower-print-lady-dior-2.jpeg",
+
+         
+        ]
+      }
+    ],
+    },
+    {
+    id: 30,
+    name: "Lady Dior",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Dior Print",
+        images: [
+          "../assets/dior-print-lady-dior-1.jpeg",
+          "../assets/dior-print-lady-dior-2.jpeg",
+         
+        ]
+      }
+    ],
+    },
+    {
+    id: 24,
+    name: "Lady D'joy Matte Leather",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      
+      { size: "M", dimensions: "10\"W x 7\"H" },
+
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/black-matte-leather-lady-djoy-1.jpeg",
+          "../assets/black-matte-leather-lady-djoy-2.jpeg",
+         
+        ]
+      }
+    ],
+    },
+    ]
+  
 export default productCatalog;

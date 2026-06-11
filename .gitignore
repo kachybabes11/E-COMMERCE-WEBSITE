@@ -42,6 +42,7 @@ coverage/
 # Uploaded files (if applicable)
 uploads/
 
+
 # Generated files
 *.pid
 *.seed
