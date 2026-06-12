@@ -857,8 +857,8 @@ const productCatalog = [
     ],
     },
     {
-    id: 24,
-    name: "Lady D'joy Matte Leather",
+    id: 31,
+    name: "Versace Croc Mini",
     category: "Shoulder Bags",
     price: 39.99,
     stock: 14,
@@ -870,15 +870,732 @@ const productCatalog = [
     ],
     colors: [
       {
-        name: "Black",
+        name: "Alligator Skin",
         images: [
-          "../assets/Black-matte-leather-lady-djoy-1.jpeg",
-          "../assets/Black-matte-leather-lady-djoy-2.jpeg",
+          "../assets/Versace-croc-skin-1.jpeg",
+          "../assets/Versace-croc-skin-2.jpeg",
          
         ]
       }
     ],
     },
+    
+    {
+    id: 32,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Green",
+        images: [
+         
+          "../assets/Unbranded-green-with-pattern-top-1.jpeg",
+          "../assets/Unbranded-green-with-pattern-top-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Pink",
+        images: [
+         "../assets/Unbranded-pink-with-pattern-top-1.jpeg",
+         "../assets/Unbranded-pink-with-pattern-top-1.jpeg",
+        
+        ],
+      }
+    ],
+  },
+      {
+    id: 33,
+    name: "Hermes Mini",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Green",
+        images: [
+         
+          "../assets/Hermes-green-1.jpeg",
+          "../assets/Hermes-green-2.jpeg",
+
+        ],
+      }
+    ],
+  },
+      {
+    id: 34,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Cream",
+        images: [
+         
+          "../assets/XL-R-chanel-1.jpeg",
+          "../assets/XL-R-chanel-2.jpeg",
+
+        ],
+      }
+    ],
+  },
+      {
+    id: 35,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Brown",
+        images: [
+         
+          "../assets/Colours-buckle-bag.jpeg",
+          "../assets/Brown-buckle-1.jpeg",
+          "../assets/Brown-buckle-2.jpeg",
+        ],
+      },
+      {
+        name: "White",
+        images: [
+          "../assets/White-buckle-1.jpeg",
+          "../assets/White-buckle-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+          "../assets/Black-buckle-1.jpeg",
+          "../assets/Black-buckle-2.jpeg",
+        ],
+      }
+    ],
+  },
+  {
+    id: 36,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         
+          "../assets/Madame-bag-set.jpeg",
+          "../assets/Black-madame-bag-1.jpeg",
+          "../assets/Black-madame-bag-2.jpeg",
+        ],
+      },
+      {
+        name: "Blue",
+        images: [
+          "../assets/Blue-madame-bag-1.jpeg",
+          "../assets/Blue-madame-bag-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-madame-bag-1.jpeg",
+          "../assets/Brown-madame-bag-2.jpeg",
+        ],
+      }
+    ],
+  },
+      {
+    id: 37,
+    name: "Inverted V FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Green",
+        images: [
+         
+          "../assets/Inverted-V-green-1.jpeg",
+         
+
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+         "../assets/Inverted-V-black-1.jpeg",
+        
+        ],
+      },
+      {
+        name: "Brown",
+        images: [
+         "../assets/Inverted-V-brown-1.jpeg",
+        
+        ],
+      }
+    ],
+  },
+      {
+    id: 38,
+    name: "Gucci Cross Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Brown",
+        images: [
+         
+          "../assets/Gucci-pair.jpeg",
+          "../assets/Gucci-brown-1.jpeg",
+          "../assets/Gucci-brown-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Blue",
+        images: [
+         "../assets/Gucci-blue-1.jpeg",
+          "../assets/Gucci-blue-2.jpeg",
+        
+        ],
+      }
+    ],
+  },
+      {
+    id: 39,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         
+          "../assets/Colours-R-chanel.jpeg",
+          "../assets/Black-R-chanel-1.jpeg",
+
+        ],
+      },
+      {
+        name: "Cream",
+        images: [
+        "../assets/Cream-R-chanel-1.jpeg",
+        
+        ],
+      },
+      {
+        name: "Red",
+        images: [
+        "../assets/Red-R-chanel-1.jpeg",
+        
+        ],
+      }
+    ],
+  },
+      {
+    id: 40,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         
+          "../assets/Black-tom-ford-1.jpeg",
+          "../assets/Black-tom-ford-2.jpeg",
+          "../assets/Black-tom-ford-3.jpeg",
+
+        ],
+      },
+   
+    ],
+  },
+      {
+    id: 41,
+    name: "Large Swede Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         
+          "../assets/Black-L-swede.jpeg",
+          
+
+        ],
+      }
+    ],
+  }, 
+  {
+    id: 42,
+    name: "Plain Kurt Geiger FlipOver",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Wine",
+        images: [
+         
+          "../assets/Wine-chained-pouch-bag-1.jpeg",
+          "../assets/Wine-chained-pouch-bag-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Green",
+        images: [
+        "../assets/Green-chained-pouch-bag-1.jpeg",
+        "../assets/Green-chained-pouch-bag-2.jpeg",
+        
+        ],
+      },
+      {
+        name: "Dark Brown",
+        images: [
+        "../assets/Brown-chained-pouch-bag-1.jpeg",
+
+        
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+        "../assets/Black-chained-pouch-bag-1.jpeg",
+      ],
+      },
+      {
+        name: "Light Brown",
+        images: [
+      "../assets/Brown-chained-pouch-bag-2.jpeg",
+      ],
+      },
+
+    ],
+  },
+    {
+    id: 43,
+    name: "Trapezium",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+         
+          "../assets/Black-trapezium-1.jpeg",
+          "../assets/Black-trapezium-2.jpeg",
+
+        ],
+      },
+      {
+        name: "Blue",
+        images: [
+          "../assets/Blue-trapezium-1.jpeg",
+          "../assets/Blue-trapezium-2.jpeg",
+        
+        ],
+      },
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-trapezium-1.jpeg",
+          "../assets/Brown-trapezium-2.jpeg",   
+        ],
+      },
+      {
+        name: "Grey",
+        images: [
+          "../assets/Grey-trapezium-1.jpeg",
+          "../assets/Grey-trapezium-2.jpeg",
+      ],
+      },
+      {
+        name: "Light Brown",
+        images: [
+          "../assets/Light-brown-trapezium-1.jpeg",
+          "../assets/Light-brown-trapezium-2.jpeg",
+      ],
+      },
+      {
+        name: "Dark Brown",
+        images: [
+          "../assets/Dark-brown-trapezium-1.jpeg",
+
+      ],
+      },
+      {
+        name: "Burgundy",
+        images: [
+          "../assets/Burgundy-trapezium-1.jpeg",
+          "../assets/Burgundy-trapezium-2.jpeg",
+      ],
+      },
+    ],
+  },
+    {
+    id: 44,
+    name: "Satchel Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Brown",
+        images: [
+          "../assets/Colours-satchel-bag.jpeg",
+          "../assets/Brown-satchel-1.jpeg",
+          "../assets/Brown-satchel-2.jpeg"
+        ],
+      },
+            {
+        name: "Pink",
+        images: [
+          "../assets/Pink-satchel-1.jpeg",
+          
+        ],
+      }
+    ],
+  }, 
+  {
+    id: 45,
+    name: "Tory Burch Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Red",
+        images: [
+          "../assets/Red-tory-burch-1.jpeg",
+          "../assets/Red-tory-burch-2.jpeg",
+          "../assets/Red-tory-burch-2.jpeg", 
+        ],
+      },
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-tory-burch-1.jpeg",
+          "../assets/Brown-tory-burch-2.jpeg",          
+        ],
+      },
+      {
+        name: "Blue",
+        images: [
+          "../assets/Blue-tory-burch-2.jpeg",
+          "../assets/Blue-tory-burch-1.jpeg",          
+        ],
+      },
+      {
+        name: "Light-Brown",
+        images: [
+          "../assets/Light-brown-tory-burch-1.jpeg",
+                  
+        ],
+      },
+    ],
+  }, 
+  {
+    id: 46,
+    name: "Satchel Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Orange",
+        images: [
+          "../assets/Orange-satchel-1.jpeg",
+          "../assets/Orange-satchel-2.jpeg"
+        ],
+      },
+    ],
+  }, 
+  {
+    id: 47,
+    name: "Criss Shoulder Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-criss-shoulder-bag-1.jpeg",
+          "../assets/Brown-criss-shoulder-bag-2.jpeg", 
+          
+        ],
+      },
+      {
+        name: "Blue",
+        images: [
+          "../assets/Blue-criss-shoulder-bag-1.jpeg",
+          "../assets/Blue-criss-shoulder-bag-2.jpeg",
+          
+        ],
+      },
+      {
+        name: "Light Brown",
+        images: [
+          "../assets/Light-brown-criss-shoulder-bag-1.jpeg",
+          "../assets/Light-brown-criss-shoulder-bag-2.jpeg",
+          
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+          "../assets/Black-criss-shoulder-bag-1.jpeg",
+          "../assets/Black-criss-shoulder-bag-2.jpeg",
+          
+        ],
+      }
+    ],
+  }, 
+  {
+    id: 48,
+    name: "Picnic Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/Picnic-set.jpeg",
+          "../assets/Black-picnic-1.jpeg",
+          "../assets/Black-picnic-2.jpeg",
+          
+        ],
+      },
+            {
+        name: "Beige",
+        images: [
+          "../assets/Beige-picnic-1.jpeg",
+          "../assets/Beige-picnic-2.jpeg",
+          
+        ],
+      }
+    ],
+  },
+  {
+    id: 49,
+    name: "Croc Skin Flip Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Brown",
+        images: [
+          "../assets/Brown-croc-skin-flap-bag-1.jpeg",
+          "../assets/Brown-croc-skin-flap-bag-2.jpeg",
+        ],
+      },
+            {
+        name: "Burgundy",
+        images: [
+          "../assets/Burgundy-croc-skin-flap-bag-1.jpeg",
+          "../assets/Burgundy-croc-skin-flap-bag-2.jpeg",
+        ],
+      },
+                  {
+        name: "Grey",
+        images: [
+          "../assets/Grey-croc-skin-flap-bag-1.jpeg",
+          "../assets/Grey-croc-skin-flap-bag-2.jpeg",
+        ],
+      },
+                  {
+        name: "Light Brown",
+        images: [
+          "../assets/Light-brown-croc-skin-flap-bag-1.jpeg",
+          "../assets/Light-brown-croc-skin-flap-bag-2.jpeg",
+        ],
+      }
+    ],
+  },
+  {
+    id: 50,
+    name: "Satchel Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Black",
+        images: [
+          "../assets/Black-satchel-1.jpeg",
+        ],
+      },
+    ],
+  },
+  {
+    id: 51,
+    name: "Bowling Bag",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Red",
+        images: [
+          "../assets/Red-bowling-bag-1.jpeg",
+          "../assets/Red-bowling-bag-2.jpeg",
+        ],
+      },
+      {
+        name: "Green",
+        images: [
+          "../assets/Green-bowling-bag-1.jpeg",
+        ],
+      },
+      {
+        name: "Grey",
+        images: [
+          "../assets/Grey-bowling-bag-1.jpeg",
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+          "../assets/Black-bowling-bag-1.jpeg",
+        ],
+      }
+    ],
+  }, 
+    {
+    id: 52,
+    name: "YSL Basket",
+    category: "Shoulder Bags",
+    price: 39.99,
+    stock: 14,
+    description: "A compact crossbody bag for hands-free styling and modern city life.",
+    sizes: [
+      { size: "M", dimensions: "10\"W x 7\"H" },
+    ],
+    colors: [
+      {
+        name: "Dark brown",
+        images: [
+          "../assets/Colours-YSL-basket-bag.jpeg",
+          "../assets/Dark-brown-YSL-basket-2.jpeg",
+          "../assets/Dark-brown-YSL-basket-3.jpeg",
+        ],
+      },
+      {
+        name: "Light brown",
+        images: [
+          "../assets/Light-brown-YSL-basket-1.jpeg",
+          "../assets/Light-brown-YSL-basket-2.jpeg",
+        ],
+      },
+      {
+        name: "Cream",
+        images: [
+          "../assets/Cream-YSL-basket-1.jpeg",
+        ],
+      },
+      {
+        name: "Black",
+        images: [
+          "../assets/Black-YSL-basket-1.jpeg",
+        ],
+      }
+    ],
+  }, 
     ]
   
 export default productCatalog;
