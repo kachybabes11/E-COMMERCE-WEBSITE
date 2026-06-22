@@ -3,24 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BagCartel</title>
+    <meta name="csrf-token" content="<%= csrfToken %>" />
+    <title>Chicnstraps Luxury Bags</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles/main.css" />
   </head>
-  <body>
-    <header class="site-header">
+  <body data-theme="light">
+    <header class="site-header" id="siteHeader">
       <div class="header-inner">
-        <a class="brand" href="/">BagCartel</a>
-        <nav class="main-nav">
-          <a href="/">Home</a>
-          <a href="/products">Products</a>
-          <a href="/cart">Cart (<%= cartCount %>)</a>
+        <button class="mobile-menu-toggle" aria-label="Open menu" data-mobile-menu-toggle>
+          <span></span><span></span><span></span>
+        </button>
+
+        <a class="brand" href="/">
+          <span class="brand-mark">CS</span>
+          <span class="brand-copy">
+            <strong>Chicnstraps</strong>
+            <small>Luxury Edition</small>
+          </span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle dark mode" data-theme-toggle>
+            <span class="theme-sun">Light</span>
+            <span class="theme-moon">Dark</span>
+          </button>
+        </div>
+
+        <nav class="main-nav" data-mobile-menu>
+          <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Home</a>
+          <a href="/products" class="<%= currentPath === '/products' ? 'active' : '' %>">Shop</a>
+          <a href="/wishlist" class="<%= currentPath === '/wishlist' ? 'active' : '' %>">Wishlist</a>
+          <a href="/cart" class="cart-link <%= currentPath === '/cart' ? 'active' : '' %>">Cart <span data-cart-count>(<%= cartCount %>)</span></a>
           <% if (user) { %>
+          <a href="/orders" class="<%= currentPath.startsWith('/orders') ? 'active' : '' %>">Orders</a>
           <a href="/logout">Logout</a>
           <% } else { %>
-          <a href="/login">Login</a>
-          
+          <a href="/login" class="<%= currentPath === '/login' ? 'active' : '' %>">Login</a>
           <% } %>
         </nav>
       </div>
     </header>
+
+    <div class="back-strip <%= currentPath === '/' ? 'hidden' : '' %>">
+      <div class="back-strip-inner">
+        <button class="back-nav-btn" type="button" data-back-button aria-label="Go back" title="Go back"> &larr; Back</button>
+      </div>
+    </div>
+
+    <script>
+      window.CATALOG_MINI = <%- JSON.stringify(productSearchData || []).replace(/</g, "\\u003c") %>;
+      window.CURRENT_USER = <%- JSON.stringify(Boolean(user)) %>;
+    </script>
     

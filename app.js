@@ -131,6 +131,16 @@ async function getCartItemCount(req) {
   return cart.reduce((total, item) => total + (item.quantity || 0), 0)
 }
 
+function getProductCategories(product) {
+  if (Array.isArray(product?.category)) return product.category
+  if (typeof product?.category === "string" && product.category.trim()) return [product.category]
+  return []
+}
+
+function hasCategory(product, category) {
+  return getProductCategories(product).includes(category)
+}
+
 app.use(async (req, res, next) => {
   try {
     if (!req.session.guestToken) {
@@ -151,6 +161,14 @@ app.use(async (req, res, next) => {
     req.session.formData = {}
     res.locals.flashMessages = req.session.messages || []
     res.locals.formatCurrency = formatCurrency
+    res.locals.currentPath = req.path
+    res.locals.productSearchData = productCatalog.map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.colors?.[0]?.images?.[0] || "",
+      category: getProductCategories(product).join(" "),
+    }))
     req.session.messages = []
     next()
   } catch (error) {
@@ -219,16 +237,48 @@ async function mergeGuestCart(req) {
 
 app.get("/", (req, res) => {
   const featured = productCatalog.slice(0, 4)
-  res.render("home", { featured })
+  const testimonials = [
+    {
+      name: "Aisha Bello",
+      role: "Lagos",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
+      rating: 5,
+      quote: "My Chicnstraps bag arrived and the finish is unreal. It instantly elevated my wardrobe.",
+    },
+    {
+      name: "Tomi Adebayo",
+      role: "Abuja",
+      avatar: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=200&q=80",
+      rating: 5,
+      quote: "The packaging felt like unboxing luxury. I got compliments the first day I wore it.",
+    },
+    {
+      name: "Zainab Musa",
+      role: "Port Harcourt",
+      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=200&q=80",
+      rating: 4,
+      quote: "High quality, rich texture, and the color looked exactly like the photos.",
+    },
+  ]
+  res.render("home", { featured, testimonials })
 })
 
-app.get("/products", (req, res) => {
-  const selectedCategory = req.query.category
-  const categories = [...new Set(productCatalog.map((product) => product.category))]
-  const products = selectedCategory
-    ? productCatalog.filter((product) => product.category === selectedCategory)
-    : productCatalog
-  res.render("products", { products, categories, selectedCategory })
+app.get("/products", async (req, res, next) => {
+  try {
+    const selectedCategory = req.query.category
+    const categories = [...new Set(productCatalog.flatMap((product) => getProductCategories(product)))]
+    const products = selectedCategory
+      ? productCatalog.filter((product) => hasCategory(product, selectedCategory))
+      : productCatalog
+    let wishlistKeys = []
+    if (req.user) {
+      const saved = await getWishlist(db, req.user.id)
+      wishlistKeys = saved.map((item) => `${item.product_id}::${item.color}`)
+    }
+    res.render("products", { products, categories, selectedCategory, wishlistKeys })
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.get("/product/:id", async (req, res, next) => {
@@ -242,7 +292,15 @@ app.get("/product/:id", async (req, res, next) => {
       color.stock = await getVariantStock(db, displayProduct.id, color.name)
     }
     const wishlisted = req.user ? await isWishlisted(db, req.user.id, displayProduct.id, displayProduct.colors[0].name) : false
-    res.render("product", { product: displayProduct, wishlisted })
+    const currentCategories = getProductCategories(displayProduct)
+    const recommendations = productCatalog
+      .filter(
+        (item) =>
+          item.id !== displayProduct.id &&
+          getProductCategories(item).some((category) => currentCategories.includes(category))
+      )
+      .slice(0, 4)
+    res.render("product", { product: displayProduct, wishlisted, recommendations })
   } catch (error) {
     next(error)
   }
@@ -255,6 +313,7 @@ app.post(
   body("color").trim().notEmpty(),
   async (req, res, next) => {
     try {
+      const wantsJson = req.xhr || req.get("x-requested-with") === "XMLHttpRequest" || req.accepts(["json", "html"]) === "json"
       const errors = validationResult(req)
       const productId = Number(req.body.productId)
       const color = req.body.color
@@ -262,16 +321,25 @@ app.post(
       const product = findProduct(productId)
       if (!product || !errors.isEmpty()) {
         req.session.messages = [{ type: "error", text: "Unable to add this product to your cart." }]
+        if (wantsJson) {
+          return res.status(400).json({ ok: false, message: "Unable to add this product to your cart." })
+        }
         return res.redirect(`/product/${productId}`)
       }
       const variant = findColorVariant(product, color)
       if (!variant) {
         req.session.messages = [{ type: "error", text: "Please choose a valid color variant." }]
+        if (wantsJson) {
+          return res.status(400).json({ ok: false, message: "Please choose a valid color variant." })
+        }
         return res.redirect(`/product/${productId}`)
       }
       const stock = await getVariantStock(db, productId, color)
       if (quantity > stock) {
         req.session.messages = [{ type: "error", text: `Only ${stock} item(s) available for ${color}.` }]
+        if (wantsJson) {
+          return res.status(400).json({ ok: false, message: `Only ${stock} item(s) available for ${color}.` })
+        }
         return res.redirect(`/product/${productId}`)
       }
       const owner = makeOwnerClause(req)
@@ -294,6 +362,22 @@ app.post(
         }
       }
       req.session.messages = [{ type: "success", text: "Product added to cart." }]
+      if (wantsJson) {
+        const cartCount = await getCartItemCount(req)
+        return res.json({
+          ok: true,
+          message: "Added to cart.",
+          cartCount,
+          product: {
+            id: product.id,
+            name: product.name,
+            color,
+            image: variant.images?.[0] || product.colors?.[0]?.images?.[0] || "",
+            price: product.price,
+            quantity,
+          },
+        })
+      }
       res.redirect("/cart")
     } catch (error) {
       next(error)
@@ -644,6 +728,7 @@ app.get("/wishlist", ensureAuthenticated, async (req, res, next) => {
         product_id: item.product_id,
         product_name: product?.name || "Unknown product",
         color: item.color,
+        colors: product?.colors?.map((variant) => variant.name) || [],
         price: product?.price || 0,
         image: product?.colors?.find((variant) => variant.name === item.color)?.images?.[0] || product?.colors?.[0]?.images?.[0] || "",
       }
@@ -661,8 +746,12 @@ app.post(
   body("color").trim().notEmpty(),
   async (req, res, next) => {
     try {
+      const wantsJson = req.xhr || req.get("x-requested-with") === "XMLHttpRequest" || req.accepts(["json", "html"]) === "json"
       await addWishlistItem(db, req.user.id, Number(req.body.productId), req.body.color)
       req.session.messages = [{ type: "success", text: "Added to wishlist." }]
+      if (wantsJson) {
+        return res.json({ ok: true, message: "Added to wishlist." })
+      }
       res.redirect(`/product/${req.body.productId}`)
     } catch (error) {
       next(error)
@@ -677,8 +766,82 @@ app.post(
   body("color").trim().notEmpty(),
   async (req, res, next) => {
     try {
+      const wantsJson = req.xhr || req.get("x-requested-with") === "XMLHttpRequest" || req.accepts(["json", "html"]) === "json"
       await removeWishlistItem(db, req.user.id, Number(req.body.productId), req.body.color)
       req.session.messages = [{ type: "success", text: "Removed from wishlist." }]
+      if (wantsJson) {
+        return res.json({ ok: true, message: "Removed from wishlist." })
+      }
+      res.redirect("/wishlist")
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+app.post(
+  "/wishlist/toggle",
+  ensureAuthenticated,
+  body("productId").isInt({ min: 1 }),
+  body("color").trim().notEmpty(),
+  async (req, res, next) => {
+    try {
+      const productId = Number(req.body.productId)
+      const color = req.body.color
+      const alreadyWishlisted = await isWishlisted(db, req.user.id, productId, color)
+
+      if (alreadyWishlisted) {
+        await removeWishlistItem(db, req.user.id, productId, color)
+      } else {
+        await addWishlistItem(db, req.user.id, productId, color)
+      }
+
+      const message = alreadyWishlisted ? "Removed from wishlist." : "Added to wishlist."
+      req.session.messages = [{ type: "success", text: message }]
+
+      if (req.xhr || req.get("x-requested-with") === "XMLHttpRequest" || req.accepts(["json", "html"]) === "json") {
+        return res.json({ ok: true, wishlisted: !alreadyWishlisted, message })
+      }
+
+      res.redirect(req.get("Referrer") || "/products")
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+app.post(
+  "/wishlist/move-to-cart",
+  ensureAuthenticated,
+  body("productId").isInt({ min: 1 }),
+  body("color").trim().notEmpty(),
+  async (req, res, next) => {
+    try {
+      const productId = Number(req.body.productId)
+      const color = req.body.color
+      const product = findProduct(productId)
+      if (!product) {
+        req.session.messages = [{ type: "error", text: "Product not found." }]
+        return res.redirect("/wishlist")
+      }
+      const variant = findColorVariant(product, color)
+      if (!variant) {
+        req.session.messages = [{ type: "error", text: "Selected color is unavailable." }]
+        return res.redirect("/wishlist")
+      }
+
+      await upsertCartItem(db, {
+        userId: req.user.id,
+        guestToken: null,
+        productId,
+        productName: product.name,
+        color,
+        unitPrice: product.price,
+        quantity: 1,
+      })
+      await removeWishlistItem(db, req.user.id, productId, color)
+
+      req.session.messages = [{ type: "success", text: "Moved item to cart." }]
       res.redirect("/wishlist")
     } catch (error) {
       next(error)
@@ -770,6 +933,22 @@ app.post(
     }
   }
 )
+
+app.get("/about", (req, res) => {
+  res.render("about")
+})
+
+app.get("/quality", (req, res) => {
+  res.render("quality")
+})
+
+app.get("/reviews", (req, res) => {
+  res.render("reviews")
+})
+
+app.get("/help", (req, res) => {
+  res.render("help")
+})
 
 app.get("/logout", (req, res, next) => {
   req.logout((error) => {

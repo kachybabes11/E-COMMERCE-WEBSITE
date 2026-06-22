@@ -1,50 +1,54 @@
 <%- include('../partials/header.ejs') %>
+<%- include('./partials/messages.ejs') %>
 
 <main class="page-content wishlist-page">
-  <section class="wishlist-card">
-    <h1>Your Wishlist</h1>
+  <section class="wishlist-card" data-reveal>
+    <div class="section-header">
+      <h1>Your Wishlist</h1>
+      <p>Save your favorite pieces and move them into cart when ready.</p>
+    </div>
 
     <% if (!wishlist.length) { %>
-      <div class="empty-state">
-        <p>Your wishlist is empty.</p>
-        <a href="/products" class="button button-secondary">Discover products</a>
-      </div>
+    <div class="empty-state premium-empty">
+      <div class="empty-illustration">o</div>
+      <h2>Your wishlist is waiting.</h2>
+      <p>Discover signature styles and save the ones that match your vibe.</p>
+      <a href="/products" class="button button-primary">Discover Bags</a>
+    </div>
     <% } else { %>
-      <div class="wishlist-grid">
-        <% wishlist.forEach((item) => { %>
-          <article class="wishlist-item">
-            <img src="<%= item.image %>" alt="<%= item.product_name %>" />
-            <div class="wishlist-copy">
-              <h3><%= item.product_name %></h3>
-              <p><%= item.color %></p>
-              <p class="price">₦<%= formatCurrency(item.price) %></p>
-              <div class="wishlist-actions">
-                <a href="/product/<%= item.product_id %>" class="button button-secondary">View</a>
-                <form action="/wishlist/remove" method="post">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <input type="hidden" name="productId" value="<%= item.product_id %>" />
-                  <input type="hidden" name="color" value="<%= item.color %>" />
-                  <button type="submit" class="button button-link">Remove</button>
-                </form>
-              </div>
-            </div>
-          </article>
-        <% }) %>
-      </div>
+    <div class="wishlist-grid">
+      <% wishlist.forEach((item) => { %>
+      <article class="wishlist-item glass-card" data-reveal>
+        <img src="<%= item.image %>" alt="<%= item.product_name %>" loading="lazy" />
+        <div class="wishlist-copy">
+          <h3><a href="/product/<%= item.product_id %>"><%= item.product_name %></a></h3>
+          <p>Color: <strong><%= item.color %></strong></p>
+          <p class="price">N<%= formatCurrency(item.price) %></p>
+          <div class="wishlist-actions">
+            <a href="/product/<%= item.product_id %>" class="button button-secondary">View</a>
+
+            <form action="/wishlist/move-to-cart" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="productId" value="<%= item.product_id %>" />
+              <input type="hidden" name="color" value="<%= item.color %>" />
+              <button type="submit" class="button button-primary">Move to Cart</button>
+            </form>
+
+            <form action="/wishlist/remove" method="post" data-wishlist-remove>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="productId" value="<%= item.product_id %>" />
+              <input type="hidden" name="color" value="<%= item.color %>" />
+              <button type="submit" class="button button-link">Remove</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      <% }) %>
+    </div>
     <% } %>
   </section>
 </main>
 
-<%- include('../partials/footer.ejs') %>
+<a href="/products" class="floating-shop-cta" aria-label="Shop now">Shop Now</a>
 
-<style>
-.wishlist-page { padding: 3rem 1rem; background: #f6f7fb; min-height: 100vh; }
-.wishlist-card { max-width: 1100px; margin: auto; background: #fff; border-radius: 24px; padding: 2rem; box-shadow: 0 24px 55px rgba(0,0,0,0.12); }
-.wishlist-grid { display: grid; gap: 1.25rem; }
-.wishlist-item { display: grid; grid-template-columns: 180px 1fr; gap: 1.2rem; padding: 1.2rem; border-radius: 20px; background: #f9fbff; }
-.wishlist-item img { width: 100%; border-radius: 18px; object-fit: cover; }
-.wishlist-copy h3 { margin: 0 0 0.5rem; }
-.wishlist-copy p { margin: 0.35rem 0; }
-.wishlist-actions { display: flex; gap: 0.75rem; margin-top: 1rem; align-items: center; }
-.button-link { background: transparent; border: none; color: #ff4d4d; cursor: pointer; font-weight: 600; }
-</style>
+<%- include('../partials/footer.ejs') %>

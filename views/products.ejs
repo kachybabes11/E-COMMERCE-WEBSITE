@@ -1,38 +1,68 @@
 <%- include('../partials/header.ejs') %>
+<%- include('./partials/messages.ejs') %>
 
-<main class="page-content">
+<main class="page-content products-page">
   <section class="product-listing">
-    <div class="listing-header">
+    <div class="listing-header" data-reveal>
       <div>
-        <h1>Shop products</h1>
+        <h1>Shop Collection</h1>
         <% if (selectedCategory) { %>
-        <p>Showing category: <strong><%= selectedCategory %></strong></p>
+        <p>Category: <strong><%= selectedCategory %></strong></p>
         <% } else { %>
-        <p>Browse the full collection by category.</p>
+        <p>Explore the full Chicnstraps catalog.</p>
         <% } %>
       </div>
-      <div class="category-filters">
-        <a class="filter-button <%= !selectedCategory ? 'active' : '' %>" href="/products">All</a>
-        <% categories.forEach((category) => { %>
-        <a class="filter-button <%= selectedCategory === category ? 'active' : '' %>" href="/products?category=<%= category %>"><%= category %></a>
-        <% }) %>
-      </div>
+      <form class="category-filter-form" action="/products" method="get">
+        <label for="category-select">Browse by category</label>
+        <select id="category-select" name="category" onchange="this.form.submit()">
+          <option value="" <%= !selectedCategory ? 'selected' : '' %>>All Categories</option>
+          <% categories.forEach((category) => { %>
+          <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>><%= category %></option>
+          <% }) %>
+        </select>
+      </form>
     </div>
 
-    <div class="product-grid">
+    <div class="product-grid premium-grid" data-reveal>
       <% products.forEach((product) => { %>
-      <article class="product-card">
-        <a href="/product/<%= product.id %>">
-          <img class="product-image" src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" />
-          <div class="product-info">
-            <h3><%= product.name %></h3>
-            <span class="price">₦<%= product.price.toFixed(2) %></span>
+      <% const key = `${product.id}::${product.colors[0].name}`; %>
+      <% const isSaved = (wishlistKeys || []).includes(key); %>
+      <article class="product-card" data-product-card>
+        <div class="product-image-wrapper">
+          <a href="/product/<%= product.id %>"><img class="product-image" src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" loading="lazy" /></a>
+          <button class="wishlist-fab <%= isSaved ? 'saved' : '' %>" type="button" data-product-id="<%= product.id %>" data-color="<%= product.colors[0].name %>" data-wishlist-toggle aria-label="Wishlist"><%= isSaved ? '♥' : '♡' %></button>
+          <button class="quick-view-trigger" type="button" data-quick-view data-product-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price.toFixed(2) %>" data-image="<%= product.colors[0].images[0] %>" data-color="<%= product.colors[0].name %>">Quick View</button>
+        </div>
+        <div class="product-info">
+          <h3><a href="/product/<%= product.id %>"><%= product.name %></a></h3>
+          <p class="price">N<%= product.price.toFixed(2) %></p>
+          <div class="card-actions">
+            <a href="/product/<%= product.id %>" class="button button-secondary">Details</a>
+            <form action="/cart/add" method="post" data-ajax-cart>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="productId" value="<%= product.id %>" />
+              <input type="hidden" name="color" value="<%= product.colors[0].name %>" />
+              <input type="hidden" name="quantity" value="1" />
+              <button type="submit" class="button button-primary">Add to Cart</button>
+            </form>
           </div>
-        </a>
+        </div>
       </article>
       <% }) %>
     </div>
+
+    <section class="recently-viewed" data-recently-viewed data-reveal>
+      <div class="section-header">
+        <h2>Recently Viewed</h2>
+        <p>Pick up where you left off.</p>
+      </div>
+      <div class="recent-grid" data-recent-grid></div>
+    </section>
   </section>
 </main>
+
+<a href="https://wa.me/2348000000000" class="floating-whatsapp-cta" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
+  <img src="/assets/whatsapp-icon-free-png.webp" alt="WhatsApp" />
+</a>
 
 <%- include('../partials/footer.ejs') %>

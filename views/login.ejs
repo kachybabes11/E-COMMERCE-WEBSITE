@@ -2,80 +2,45 @@
 <%- include('./partials/messages.ejs') %>
 
 <main class="page-content auth-page">
-  <div class="auth-card">
-    <div class="auth-form">
-      <h1>Welcome back</h1>
-      <p style="color: #666; margin-bottom: 1.5rem;">Sign in to your BagCartel account</p>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your Chicnstraps account</p>
+      </div>
 
-      <form action="/login" method="post">
+      <form action="/login" method="post" class="auth-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <div>
+        <div class="form-group">
           <label for="email">Email Address</label>
           <input type="email" id="email" name="email" required placeholder="you@example.com" />
         </div>
-        <div>
+        <div class="form-group">
           <label for="password">Password</label>
           <input type="password" id="password" name="password" required placeholder="••••••••" />
         </div>
-        <button type="submit" class="button button-primary" style="width: 100%; margin-top: 0.5rem;">Sign In</button>
+        <button type="submit" class="button button-primary auth-button">Sign In</button>
       </form>
 
       <% if (googleEnabled) { %>
       <div class="oauth-section">
-        <p>Or continue with</p>
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
         <a href="/auth/google" class="oauth-button">
-            <img src="../assets/icons8-google-48.png" class="google-icon">
-          Google
+          <img src="/assets/icons8-google-48.png" alt="Google" class="oauth-icon" />
+          <span>Google</span>
         </a>
       </div>
       <% } %>
 
-      <div class="form-toggle" style="margin-top: 1.5rem; text-align: center;">
-        <p style="margin: 0; color: #666;">Don't have an account? <a href="/register">Sign up</a></p>
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="/register" class="auth-link">Sign up here</a></p>
       </div>
     </div>
+
+    <div class="auth-accent"></div>
   </div>
 </main>
 
 <%- include('../partials/footer.ejs') %>
-
-<style>
-  .form-toggle-btn {
-    background: none;
-    border: none;
-    color: #667eea;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: underline;
-    transition: color 0.3s ease;
-  }
-
-  .form-toggle-btn:hover {
-    color: #764ba2;
-  }
-
-  .auth-form {
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-</style>
-
-<script>
-  function toggleForms() {
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    
-    loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
-    registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
-  }
-</script>

@@ -1,225 +1,57 @@
 <footer class="site-footer">
+  <div class="footer-glow"></div>
   <div class="footer-container">
-
-    <!-- BRAND STORY -->
-    <div class="footer-section">
-      <h2 class="footer-logo">BagCartel</h2>
-      <p>
-        Repeat after me: I DESERVE A NEW BAG.
-      </p>
-    </div>
-
-    <!-- EXPLORE -->
-    <div class="footer-section">
-      <h3>Explore</h3>
-      <a href="/">Home</a>
-      <a href="/products">Shop Collection</a>
-      <a href="/new">New Arrivals</a>
-      <a href="/best-sellers">Best Sellers</a>
-    </div>
-
-    <!-- EXPERIENCE -->
-    <div class="footer-section">
-      <h3>Experience</h3>
-      <a href="/about">Our Story</a>
-      <a href="/quality">Quality Promise</a>
-      <a href="/reviews">Customer Reviews</a>
-      <a href="/faq">Help Center</a>
-    </div>
-
-    <!-- CONTACT (KEEPED AS REQUESTED) -->
-    <div class="footer-section">
-      <h3>Contact Us</h3>
-      <p>Email: <a href="mailto:support@bagcartel.com">support@bagcartel.com</a></p>
-      <p>Phone: <a href="tel:+2348000000000">+234 800 000 0000</a></p>
-
+    <section class="footer-brand-block">
+      <p class="footer-kicker">Chicnstraps Atelier</p>
+      <h2>Made for the woman who carries presence.</h2>
+      <p class="footer-copy">From curated materials to polished silhouettes, every piece is selected to feel timeless, modern, and unmistakably premium.</p>
       <div class="socials">
-        <a href="https://wa.me/2348000000000" target="_blank"><img src="../assets/whatsapp-icon-free-png.webp"></a>
-        <a href="https://instagram.com/bagcartel" target="_blank"><img src="../assets/modern-badge-logo-instagram-icon_578229-124.avif"></a>
-        <a href="https://tiktok.com/@bagcartel" target="_blank"><img src="../assets/tiktok-logo_1080029-103.avif"></a>
-         <a href="https://tiktok.com/@bagcartel" target="_blank"><img src="../assets/facebook-logo-blue-circle_705838-12823.avif"></a>
+        <a href="https://wa.me/2348000000000" target="_blank" rel="noreferrer" aria-label="Whatsapp"><img src="/assets/whatsapp-icon-free-png.webp" alt="Whatsapp" /></a>
+        <a href="https://instagram.com/chicnstraps" target="_blank" rel="noreferrer" aria-label="Instagram"><img src="/assets/modern-badge-logo-instagram-icon_578229-124.avif" alt="Instagram" /></a>
+        <a href="https://tiktok.com/@chicnstraps" target="_blank" rel="noreferrer" aria-label="TikTok"><img src="/assets/tiktok-logo_1080029-103.avif" alt="TikTok" /></a>
+        <a href="https://facebook.com/chicnstraps" target="_blank" rel="noreferrer" aria-label="Facebook"><img src="/assets/facebook-logo-blue-circle_705838-12823.avif" alt="Facebook" /></a>
       </div>
-    </div>
+    </section>
 
-    <!-- NEWSLETTER -->
-    <div class="footer-section">
-      <h3>Join the Cartel</h3>
-      <p>Get early access to drops, discounts, and exclusive styles.</p>
+    <section class="footer-links-block">
+      <div class="footer-column">
+        <h3>Explore</h3>
+        <a href="/">Home</a>
+        <a href="/products">Shop Collection</a>
+        <a href="/products?category=New%20Arrivals">New Arrivals</a>
+      </div>
+      <div class="footer-column">
+        <h3>Experience</h3>
+        <a href="/about">Our Story</a>
+        <a href="/quality">Quality Promise</a>
+        <a href="/reviews">Customer Reviews</a>
+        <a href="/help">Help Center</a>
+      </div>
+    </section>
 
+    <section class="footer-contact-block">
+      <h3>Contact</h3>
+      <a href="mailto:support@chicnstraps.com">support@chicnstraps.com</a>
+      <a href="tel:+2348000000000">+234 800 000 0000</a>
+    </section>
+
+    <section class="footer-newsletter-block">
+      <h3>Private Drops</h3>
+      <p>Get first access to limited colors, exclusive bundles, and members-only offers.</p>
       <form action="/subscribe" method="post" class="newsletter-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <input type="email" name="email" placeholder="Your email address" required />
-        <button type="submit">Join</button>
+        <input type="email" name="email" placeholder="Enter your email" required />
+        <button type="submit">Join List</button>
       </form>
-    </div>
-
+    </section>
   </div>
 
-  <!-- BOTTOM BAR -->
   <div class="footer-bottom">
-    <p>© <%= new Date().getFullYear() %> BagCartel. All rights reserved.</p>
-
-    <p>
-      Designed by 
-      <a href="mailto:yourname@gmail.com?subject=BagCartel%20Design%20Inquiry">
-        KB technologies
-      </a>
-    </p>
+    <p>(c) <%= new Date().getFullYear() %> Chicnstraps. Crafted for modern luxury.</p>
+    <p>Designed by KB Technologies</p>
   </div>
-  <style>
-    .site-footer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #eaeaea;
-  padding: 70px 20px 25px;
-  font-family: "Montserrat", sans-serif;
-}
-
-/* MAIN GRID */
-.footer-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 40px;
-  max-width: 1200px;
-  margin: auto;
-}
-
-/* LOGO + BRAND TEXT */
-.footer-logo {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 15px;
-  color: #ffffff;
-}
-
-.footer-section p {
-  color: #ffffff;
-  line-height: 1.6;
-  font-size: 14px;
-}
-
-/* HEADINGS */
-.footer-section h3 {
-  font-size: 16px;
-  margin-bottom: 15px;
-  color: #ffffff;
-  position: relative;
-}
-
-/* subtle underline effect */
-.footer-section h3::after {
-  content: "";
-  width: 35px;
-  height: 2px;
-  background: #f5ba13;
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-}
-
-/* LINKS */
-.footer-section a {
-  display: block;
-  color: #ffffff;
-  text-decoration: none;
-  margin: 8px 0;
-  font-size: 14px;
-  transition: 0.3s ease;
-}
-
-.footer-section a:hover {
-  color: #f5ba13;
-  transform: translateX(5px);
-}
-
-/* SOCIAL LINKS */
-.socials {
-  margin-top: 12px;
-  
-}
-
-.socials img{
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-}
-
-.socials a {
-  display: inline-block;
-  margin-right: 10px;
-  font-size: 13px;
-  background: white;
-  padding: 6px 10px;
-  border: 1px solid;
-  border-radius: 20px;
-  transition: 0.3s ease;
-}
-
-.socials a:hover {
-  background: #f5ba13;
-  color: #000;
-  border-color: #f5ba13;
-}
-
-/* NEWSLETTER */
-.newsletter-form {
-  display: flex;
-  margin-top: 12px;
-  gap: 10px;
-}
-
-.newsletter-form input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-  background: #ffffff;
-  color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.newsletter-form input::placeholder {
-  color: #777;
-}
-
-.newsletter-form button {
-  padding: 10px 15px;
-  border: none;
-  background: #f5ba13;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.3s ease;
-}
-
-.newsletter-form button:hover {
-  background: #ffcc33;
-  transform: scale(1.05);
-}
-
-/* BOTTOM BAR */
-.footer-bottom {
-  border-top: 1px solid #222;
-  margin-top: 50px;
-  padding-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  font-size: 13px;
-  color: #888;
-}
-
-.footer-bottom a {
-  color: #f5ba13;
-  text-decoration: none;
-  transition: 0.3s ease;
-}
-
-.footer-bottom a:hover {
-  color: #ffcc33;
-}
-  </style>
 </footer>
+
+<script src="/scripts/main-ui.js" defer></script>
   </body>
 </html>

@@ -2,23 +2,37 @@
 <%- include('./partials/messages.ejs') %>
 
 <main class="page-content auth-page">
-  <section class="auth-card">
-    <h1>Create account</h1>
-    <form action="/register" method="post">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required value="<%= formData.email || '' %>" />
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Create Account</h1>
+        <p class="auth-subtitle">Join Chicnstraps and start shopping premium bags</p>
+      </div>
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required />
+      <form action="/register" method="post" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required value="<%= formData.email || '' %>" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Create a strong password" />
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required placeholder="Re-enter password" />
+        </div>
+        <button type="submit" class="button button-primary auth-button">Create Account</button>
+      </form>
 
-      <label for="confirm-password">Confirm Password</label>
-      <input type="password" id="confirm-password" name="confirm-password" required />
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login" class="auth-link">Sign in here</a></p>
+      </div>
+    </div>
 
-      <button class="button button-primary" type="submit">Register</button>
-    </form>
-    <p class="small-text">Already have an account? <a href="/login">Sign in</a></p>
-  </section>
+    <div class="auth-accent"></div>
+  </div>
 </main>
 
 <%- include('../partials/footer.ejs') %>
