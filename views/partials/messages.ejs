@@ -6,6 +6,20 @@
   <% } %>
 </div>
 
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    var toasts = document.querySelectorAll(".toast-container .toast");
+    toasts.forEach(function (toast) {
+      window.setTimeout(function () {
+        toast.classList.add("fade");
+        window.setTimeout(function () {
+          toast.remove();
+        }, 280);
+      }, 5000);
+    });
+  });
+</script>
+
 <style>
 .toast-container {
   position: fixed;
@@ -22,6 +36,11 @@
   color: #fff;
   box-shadow: 0 20px 50px rgba(0,0,0,0.12);
   animation: slideIn 0.35s ease;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.toast.fade {
+  opacity: 0;
+  transform: translateX(12px);
 }
 .toast-success { background: #1f7f4c; }
 .toast-error { background: #d64545; }

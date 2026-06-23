@@ -52,24 +52,34 @@
     </div>
     <div class="product-grid premium-grid">
       <% featured.forEach((product) => { %>
+      <%
+        const homeFirstAvailableVariant = product.colors.find(v => Number(v.stock || 0) > 0 && v.availability !== 'Out of Stock') || product.colors[0];
+        const homeHasAnyStock = product.colors.some(v => Number(v.stock || 0) > 0 && v.availability !== 'Out of Stock');
+        const homeStockLabel = homeHasAnyStock ? 'In Stock' : 'Out of Stock';
+      %>
       <article class="product-card" data-product-card>
         <div class="product-image-wrapper">
-          <img src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" loading="lazy" />
-          <button class="wishlist-fab" type="button" data-product-id="<%= product.id %>" data-color="<%= product.colors[0].name %>" data-wishlist-toggle aria-label="Toggle wishlist">♡</button>
-          <button class="quick-view-trigger" type="button" data-quick-view data-product-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price.toFixed(2) %>" data-image="<%= product.colors[0].images[0] %>" data-color="<%= product.colors[0].name %>">Quick View</button>
+          <img src="<%= homeFirstAvailableVariant.images[0] %>" alt="<%= product.name %>" loading="lazy" />
+          <button class="wishlist-fab" type="button" data-product-id="<%= product.id %>" data-color="<%= homeFirstAvailableVariant.name %>" data-wishlist-toggle aria-label="Toggle wishlist">♡</button>
+          <button class="quick-view-trigger" type="button" data-quick-view data-product-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price.toFixed(2) %>" data-image="<%= homeFirstAvailableVariant.images[0] %>" data-color="<%= homeFirstAvailableVariant.name %>">Quick View</button>
         </div>
         <div class="product-info">
           <h3><a href="/product/<%= product.id %>"><%= product.name %></a></h3>
           <p class="price">N<%= product.price.toFixed(2) %></p>
+          <p class="stock-badge <%= homeStockLabel.toLowerCase().replace(/\s+/g, '-') %>"><%= homeStockLabel %></p>
           <div class="card-actions">
             <a href="/product/<%= product.id %>" class="button button-secondary">Details</a>
+            <% if (homeHasAnyStock) { %>
             <form action="/cart/add" method="post" data-ajax-cart>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="productId" value="<%= product.id %>" />
-              <input type="hidden" name="color" value="<%= product.colors[0].name %>" />
+              <input type="hidden" name="color" value="<%= homeFirstAvailableVariant.name %>" />
               <input type="hidden" name="quantity" value="1" />
               <button type="submit" class="button button-primary">Add to Cart</button>
             </form>
+            <% } else { %>
+            <button type="button" class="button button-primary" disabled>Out of Stock</button>
+            <% } %>
           </div>
         </div>
       </article>

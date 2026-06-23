@@ -39,6 +39,9 @@
           <a href="/cart" class="cart-link <%= currentPath === '/cart' ? 'active' : '' %>">Cart <span data-cart-count>(<%= cartCount %>)</span></a>
           <% if (user) { %>
           <a href="/orders" class="<%= currentPath.startsWith('/orders') ? 'active' : '' %>">Orders</a>
+          <% if (user.is_admin) { %>
+          <a href="/admin" class="<%= currentPath.startsWith('/admin') ? 'active' : '' %>">Admin</a>
+          <% } %>
           <a href="/logout">Logout</a>
           <% } else { %>
           <a href="/login" class="<%= currentPath === '/login' ? 'active' : '' %>">Login</a>

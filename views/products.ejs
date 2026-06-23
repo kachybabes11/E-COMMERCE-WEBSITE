@@ -25,26 +25,42 @@
 
     <div class="product-grid premium-grid" data-reveal>
       <% products.forEach((product) => { %>
-      <% const key = `${product.id}::${product.colors[0].name}`; %>
+      <%
+        // Find the first color variant that has stock available
+        const firstAvailableVariant = product.colors.find(v => Number(v.stock || 0) > 0 && v.availability !== 'Out of Stock') || product.colors[0];
+        const hasAnyStock = product.colors.some(v => Number(v.stock || 0) > 0 && v.availability !== 'Out of Stock');
+        const allOutOfStock = !hasAnyStock;
+        const stockLabel = allOutOfStock ? 'Out of Stock' : 'In Stock';
+        // Count available colours so the shopper knows to visit the product page
+        const availableColors = product.colors.filter(v => Number(v.stock || 0) > 0 && v.availability !== 'Out of Stock').length;
+      %>
+      <% const key = `${product.id}::${firstAvailableVariant.name}`; %>
       <% const isSaved = (wishlistKeys || []).includes(key); %>
       <article class="product-card" data-product-card>
         <div class="product-image-wrapper">
-          <a href="/product/<%= product.id %>"><img class="product-image" src="<%= product.colors[0].images[0] %>" alt="<%= product.name %>" loading="lazy" /></a>
-          <button class="wishlist-fab <%= isSaved ? 'saved' : '' %>" type="button" data-product-id="<%= product.id %>" data-color="<%= product.colors[0].name %>" data-wishlist-toggle aria-label="Wishlist"><%= isSaved ? '♥' : '♡' %></button>
-          <button class="quick-view-trigger" type="button" data-quick-view data-product-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price.toFixed(2) %>" data-image="<%= product.colors[0].images[0] %>" data-color="<%= product.colors[0].name %>">Quick View</button>
+          <a href="/product/<%= product.id %>"><img class="product-image" src="<%= firstAvailableVariant.images[0] %>" alt="<%= product.name %>" loading="lazy" /></a>
+          <button class="wishlist-fab <%= isSaved ? 'saved' : '' %>" type="button" data-product-id="<%= product.id %>" data-color="<%= firstAvailableVariant.name %>" data-wishlist-toggle aria-label="Wishlist"><%= isSaved ? '♥' : '♡' %></button>
+          <button class="quick-view-trigger" type="button" data-quick-view data-product-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price.toFixed(2) %>" data-image="<%= firstAvailableVariant.images[0] %>" data-color="<%= firstAvailableVariant.name %>">Quick View</button>
         </div>
         <div class="product-info">
           <h3><a href="/product/<%= product.id %>"><%= product.name %></a></h3>
           <p class="price">N<%= product.price.toFixed(2) %></p>
+          <p class="stock-badge <%= stockLabel.toLowerCase().replace(/\s+/g, '-') %>">
+            <%= stockLabel %>
+          </p>
           <div class="card-actions">
             <a href="/product/<%= product.id %>" class="button button-secondary">Details</a>
+            <% if (allOutOfStock) { %>
+            <button type="button" class="button button-primary" disabled>Out of Stock</button>
+            <% } else { %>
             <form action="/cart/add" method="post" data-ajax-cart>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="productId" value="<%= product.id %>" />
-              <input type="hidden" name="color" value="<%= product.colors[0].name %>" />
+              <input type="hidden" name="color" value="<%= firstAvailableVariant.name %>" />
               <input type="hidden" name="quantity" value="1" />
               <button type="submit" class="button button-primary">Add to Cart</button>
             </form>
+            <% } %>
           </div>
         </div>
       </article>

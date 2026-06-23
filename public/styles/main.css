@@ -1133,6 +1133,32 @@ body[data-theme="dark"] .theme-moon {
 .stock-info {
   color: #2e9d56;
 }
+.stock-info.stock-low-stock {
+  color: #c07a00;
+}
+.stock-info.stock-out-of-stock {
+  color: #c03030;
+}
+
+.stock-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin: 0.15rem 0 0.5rem;
+}
+.stock-badge.in-stock {
+  color: #2e9d56;
+}
+.stock-badge.low-stock {
+  color: #c07a00;
+}
+.stock-badge.out-of-stock {
+  color: #c03030;
+}
+.stock-badge small {
+  font-weight: 400;
+  opacity: 0.8;
+  margin-left: 0.3rem;
+}
 
 .wishlist-main-btn {
   border: 1px solid var(--surface-border);

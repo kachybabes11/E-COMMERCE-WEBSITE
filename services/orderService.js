@@ -13,6 +13,7 @@ export async function createOrder(db, {
   orderStatus,
   totalAmount,
   paystackReference,
+  reservationCode = null,
 }) {
   const orderNumber = `BC-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 900 + 100)}`
   const orderUuid = uuidv4()
@@ -31,8 +32,9 @@ export async function createOrder(db, {
       payment_status,
       order_status,
       total_amount,
-      paystack_reference
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      paystack_reference,
+      reservation_code
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
     [
       orderUuid,
       orderNumber,
@@ -47,6 +49,7 @@ export async function createOrder(db, {
       orderStatus,
       totalAmount,
       paystackReference,
+      reservationCode,
     ]
   )
 
@@ -55,6 +58,7 @@ export async function createOrder(db, {
   const insertItems = items.map((item) => [
     order.id,
     item.product_id,
+    item.variant_id || null,
     item.product_name,
     item.color,
     item.quantity,
@@ -65,13 +69,13 @@ export async function createOrder(db, {
   if (insertItems.length) {
     const values = insertItems
       .map(
-        (_, index) => `($${index * 7 + 1}, $${index * 7 + 2}, $${index * 7 + 3}, $${index * 7 + 4}, $${index * 7 + 5}, $${index * 7 + 6}, $${index * 7 + 7})`
+        (_, index) => `($${index * 8 + 1}, $${index * 8 + 2}, $${index * 8 + 3}, $${index * 8 + 4}, $${index * 8 + 5}, $${index * 8 + 6}, $${index * 8 + 7}, $${index * 8 + 8})`
       )
       .join(",")
 
     const flatParams = insertItems.flat()
     await db.query(
-      `INSERT INTO order_items (order_id, product_id, product_name, color, quantity, unit_price, total_price) VALUES ${values}`,
+      `INSERT INTO order_items (order_id, product_id, variant_id, product_name, color, quantity, unit_price, total_price) VALUES ${values}`,
       flatParams
     )
   }

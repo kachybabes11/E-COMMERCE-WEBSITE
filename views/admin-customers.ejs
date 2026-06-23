@@ -1,0 +1,40 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-page">
+  <section class="admin-shell">
+    <div class="admin-top">
+      <h1>Customers</h1>
+      <form action="/admin/customers" method="get" class="search-form">
+        <input type="text" name="search" placeholder="Search by email" value="<%= search %>" />
+        <button class="button button-primary" type="submit">Search</button>
+      </form>
+    </div>
+
+    <div class="admin-list">
+      <% customers.forEach((customer) => { %>
+      <a class="admin-item" href="/admin/customers/<%= customer.id %>">
+        <div>
+          <h3><%= customer.email %></h3>
+          <small>Joined <%= new Date(customer.created_at).toLocaleDateString() %></small>
+        </div>
+        <div><strong><%= customer.total_orders %></strong><span>Orders</span></div>
+        <div><strong>N<%= formatCurrency(customer.total_spent) %></strong><span>Spent</span></div>
+      </a>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<style>
+.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-shell { max-width: 1100px; margin: auto; }
+.admin-top { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 14px; padding: 1rem; }
+.search-form { display: flex; gap: 0.5rem; }
+.search-form input { border: 1px solid #d2d8c9; border-radius: 10px; padding: 0.6rem 0.7rem; }
+.admin-list { margin-top: 1rem; display: grid; gap: 0.7rem; }
+.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: #fff; border-radius: 12px; padding: 0.9rem; text-decoration: none; color: inherit; }
+.admin-item span { display: block; opacity: 0.7; }
+@media (max-width: 820px) { .admin-item { grid-template-columns: 1fr; } }
+</style>
+
+<%- include('../partials/footer.ejs') %>

@@ -17,7 +17,7 @@
       setTimeout(function () {
         toast.remove();
       }, 280);
-    }, 15000);
+    }, 5000);
   }
 
   function createToastContainer() {
@@ -91,6 +91,8 @@
   function initAjaxCartForms() {
     var forms = document.querySelectorAll("form[data-ajax-cart]");
     forms.forEach(function (form) {
+      if (form.dataset.ajaxCartBound === "true") return;
+      form.dataset.ajaxCartBound = "true";
       form.addEventListener("submit", async function (event) {
         event.preventDefault();
         const data = Object.fromEntries(new FormData(form).entries());
@@ -333,6 +335,13 @@
       bindSlideControls();
     }
 
+    function getStockLabel(variant) {
+      var qty = Number(variant.stock || 0);
+      if (variant.availability === 'Out of Stock' || qty <= 0) return 'Out of Stock';
+      if (qty < 5) return qty + ' unit' + (qty === 1 ? '' : 's') + ' left';
+      return 'In Stock';
+    }
+
     function updateSlides() {
       var slides = slideshow.querySelectorAll(".slide");
       var dots = indicators.querySelectorAll(".indicator");
@@ -375,6 +384,23 @@
         if (wishlistColorInput) wishlistColorInput.value = nextColor;
         var wishBtn = document.querySelector(".wishlist-main-btn");
         if (wishBtn) wishBtn.setAttribute("data-color", nextColor);
+        var nextLabel = getStockLabel(window.PRODUCT_COLORS[colorIndex]);
+        var stockEl = document.getElementById("stockStatus");
+        var addBtn = document.getElementById("addToCartBtn");
+        if (stockEl) {
+          stockEl.textContent = nextLabel;
+          stockEl.className = "stock-info " + (nextLabel === "In Stock" ? "stock-in-stock" : nextLabel === "Out of Stock" ? "stock-out-of-stock" : "stock-low-stock");
+        }
+        if (addBtn) {
+          var qty = Number(window.PRODUCT_COLORS[colorIndex].stock || 0);
+          addBtn.disabled = qty <= 0;
+          addBtn.textContent = qty <= 0 ? "Out of Stock" : "Add to Cart";
+        }
+        if (stickySubmit) {
+          var qtySticky = Number(window.PRODUCT_COLORS[colorIndex].stock || 0);
+          stickySubmit.disabled = qtySticky <= 0;
+          stickySubmit.textContent = qtySticky <= 0 ? "Out of Stock" : "Add to Cart";
+        }
         renderSlides();
       });
     });

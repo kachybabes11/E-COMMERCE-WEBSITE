@@ -1923,7 +1923,7 @@ const productCatalog = [
     colors: [
       {
         name: "Pink/Wine",
-        stock: 3,
+        stock: 1,
         images: [
        
           "../assets/thumbnails/WhatsApp Image 2026-06-22 at 22.04.37 (1).jpeg",

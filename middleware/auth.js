@@ -8,8 +8,11 @@ export function ensureAuthenticated(req, res, next) {
 }
 
 export function ensureAdmin(req, res, next) {
-  if (req.user && req.user.is_admin) {
+  if (req.user && (req.user.is_admin || req.user.role === "admin")) {
     return next()
   }
-  res.status(403).send("Unauthorized")
+  if (req.path.startsWith("/api/")) {
+    return res.status(403).json({ ok: false, message: "Admin access required." })
+  }
+  return res.status(403).send("Unauthorized")
 }

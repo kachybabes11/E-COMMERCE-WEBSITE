@@ -1,0 +1,48 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-page">
+  <section class="admin-shell">
+    <div class="admin-top actions">
+      <h1>Products & Inventory</h1>
+      <a href="/admin/products/new" class="button button-primary">Add Product</a>
+    </div>
+
+    <div class="admin-list">
+      <% products.forEach((product) => { %>
+      <article class="admin-item">
+        <div>
+          <h3><%= product.name %></h3>
+          <p><%= product.categories || 'Uncategorized' %></p>
+          <small>N<%= formatCurrency(product.price) %></small>
+        </div>
+        <div>
+          <strong>Stock: <%= product.total_stock %></strong>
+          <p><%= product.stock_status || 'In Stock' %></p>
+        </div>
+        <div class="item-actions">
+          <a class="button button-secondary" href="/admin/products/<%= product.id %>/edit">Edit</a>
+          <form action="/admin/products/<%= product.id %>/delete" method="post" onsubmit="return confirm('Archive this product?')">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button class="button button-link" type="submit">Archive</button>
+          </form>
+        </div>
+      </article>
+      <% }) %>
+    </div>
+  </section>
+</main>
+
+<style>
+.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-shell { max-width: 1150px; margin: auto; }
+.admin-top.actions { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16px; padding: 1rem 1.2rem; }
+.admin-list { display: grid; gap: 0.8rem; margin-top: 1rem; }
+.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; background: #fff; border-radius: 14px; padding: 1rem; align-items: center; }
+.item-actions { display: flex; gap: 0.6rem; justify-content: flex-end; align-items: center; }
+@media (max-width: 860px) {
+  .admin-item { grid-template-columns: 1fr; }
+  .item-actions { justify-content: flex-start; }
+}
+</style>
+
+<%- include('../partials/footer.ejs') %>

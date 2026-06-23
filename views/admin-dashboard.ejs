@@ -1,0 +1,104 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-page">
+  <section class="admin-shell">
+    <header class="admin-top">
+      <h1>Admin Dashboard</h1>
+      <p>Production metrics, inventory alerts, and order visibility in one place.</p>
+    </header>
+
+    <section class="admin-grid metrics-grid">
+      <article class="metric-card">
+        <h3>Total Sales</h3>
+        <strong>N<%= formatCurrency(analytics.totalSales) %></strong>
+      </article>
+      <article class="metric-card">
+        <h3>Total Orders</h3>
+        <strong><%= analytics.totalOrders %></strong>
+      </article>
+      <article class="metric-card">
+        <h3>Revenue</h3>
+        <strong>N<%= formatCurrency(analytics.revenue) %></strong>
+      </article>
+      <article class="metric-card actions">
+        <a href="/admin/products" class="button button-primary">Manage Products</a>
+        <a href="/admin/orders" class="button button-secondary">Manage Orders</a>
+        <a href="/admin/customers" class="button button-secondary">Customers</a>
+      </article>
+    </section>
+
+    <section class="admin-grid two-col">
+      <article class="admin-panel">
+        <h2>Best-Selling Products</h2>
+        <% if (!analytics.bestSellers.length) { %>
+        <p>No sales yet.</p>
+        <% } %>
+        <% analytics.bestSellers.forEach((item) => { %>
+        <div class="row-line"><span><%= item.product_name %></span><strong><%= item.sold %> sold</strong></div>
+        <% }) %>
+      </article>
+
+      <article class="admin-panel">
+        <h2>Low Stock Alerts</h2>
+        <% if (!analytics.lowStock.length) { %>
+        <p>No low stock products right now.</p>
+        <% } %>
+        <% analytics.lowStock.forEach((item) => { %>
+        <div class="row-line"><span><%= item.name %> - <%= item.color %></span><strong><%= item.quantity %></strong></div>
+        <% }) %>
+      </article>
+    </section>
+
+    <section class="admin-panel">
+      <h2>Monthly Sales</h2>
+      <canvas id="monthlySalesChart" height="120"></canvas>
+    </section>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.Chart) return;
+    const points = <%- JSON.stringify(analytics.monthlySales) %>;
+    const ctx = document.getElementById("monthlySalesChart");
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: points.map((row) => row.month),
+        datasets: [{
+          label: "Sales",
+          data: points.map((row) => row.amount),
+          borderColor: "#1b6a59",
+          backgroundColor: "rgba(27,106,89,0.12)",
+          fill: true,
+          tension: 0.35,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+      },
+    });
+  });
+</script>
+
+<style>
+.admin-page { padding: 2rem 1rem; background: linear-gradient(180deg, #f5f4ef 0%, #eef3f2 100%); }
+.admin-shell { max-width: 1200px; margin: auto; display: grid; gap: 1rem; }
+.admin-top { background: #ffffff; border-radius: 18px; padding: 1.2rem 1.3rem; }
+.admin-grid { display: grid; gap: 1rem; }
+.metrics-grid { grid-template-columns: repeat(4, 1fr); }
+.metric-card, .admin-panel { background: #ffffff; border-radius: 18px; padding: 1.2rem; }
+.metric-card strong { font-size: 1.4rem; }
+.metric-card.actions { display: grid; gap: 0.5rem; }
+.two-col { grid-template-columns: repeat(2, 1fr); }
+.row-line { display: flex; justify-content: space-between; border-bottom: 1px solid #ece8df; padding: 0.6rem 0; }
+@media (max-width: 950px) {
+  .metrics-grid, .two-col { grid-template-columns: 1fr; }
+}
+</style>
+
+<%- include('../partials/footer.ejs') %>

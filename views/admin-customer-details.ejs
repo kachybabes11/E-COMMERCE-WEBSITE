@@ -1,0 +1,38 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-page">
+  <section class="admin-shell">
+    <div class="admin-top">
+      <div>
+        <h1><%= customer.email %></h1>
+        <p>Customer ID: <%= customer.id %></p>
+      </div>
+      <a href="/admin/customers" class="button button-secondary">Back</a>
+    </div>
+
+    <section class="admin-panel">
+      <h2>Customer Orders</h2>
+      <% if (!orders.length) { %>
+      <p>No orders yet.</p>
+      <% } %>
+      <% orders.forEach((order) => { %>
+      <a class="order-line" href="/admin/orders/<%= order.id %>">
+        <span><%= order.order_number %></span>
+        <span><%= order.order_status %></span>
+        <strong>N<%= formatCurrency(order.total_amount) %></strong>
+      </a>
+      <% }) %>
+    </section>
+  </section>
+</main>
+
+<style>
+.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-shell { max-width: 1000px; margin: auto; display: grid; gap: 1rem; }
+.admin-top, .admin-panel { background: #fff; border-radius: 14px; padding: 1rem; }
+.order-line { display: grid; grid-template-columns: 1.4fr 1fr 1fr; border-bottom: 1px solid #ebefe6; padding: 0.8rem 0; text-decoration: none; color: inherit; }
+.order-line:last-child { border-bottom: 0; }
+@media (max-width: 780px) { .order-line { grid-template-columns: 1fr; gap: 0.3rem; } }
+</style>
+
+<%- include('../partials/footer.ejs') %>

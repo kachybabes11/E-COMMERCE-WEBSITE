@@ -1,0 +1,99 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content admin-page">
+  <section class="admin-shell form-shell">
+    <header class="admin-top">
+      <h1><%= mode === 'edit' ? `Edit Product #${product.id}` : 'Create Product' %></h1>
+      <a href="/admin/products" class="button button-secondary">Back</a>
+    </header>
+
+    <form action="/admin/products" method="post" enctype="multipart/form-data" class="admin-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <% if (mode === 'edit') { %>
+      <input type="hidden" name="productId" value="<%= product.id %>" />
+      <% } %>
+
+      <label>Name<input name="name" value="<%= product?.name || '' %>" required /></label>
+      <label>Description<textarea name="description" rows="4"><%= product?.description || '' %></textarea></label>
+      <label>Price<input type="number" step="0.01" min="0" name="price" value="<%= product?.price || 0 %>" required /></label>
+      <label>Categories (comma-separated)
+        <input name="categories" value="<%= (product?.categories || []).join(', ') %>" placeholder="Mini, New Arrivals" />
+      </label>
+
+      <h3>Sizes</h3>
+      <div id="sizesBlock" class="repeat-block"></div>
+      <button type="button" class="button button-secondary" id="addSizeBtn">Add Size</button>
+
+      <h3>Variants</h3>
+      <label>Upload Product Images
+        <input type="file" name="images" multiple accept="image/png,image/jpeg,image/webp,image/avif" />
+      </label>
+      <div id="variantsBlock" class="repeat-block"></div>
+      <button type="button" class="button button-secondary" id="addVariantBtn">Add Variant</button>
+
+      <button class="button button-primary" type="submit">Save Product</button>
+    </form>
+  </section>
+</main>
+
+<script>
+  const existingProduct = <%- JSON.stringify(product || null) %>;
+
+  function sizeRow(size = {}) {
+    return `
+      <div class="row-card">
+        <label>Size Label<input name="sizeLabels" value="${size.size || ''}" /></label>
+        <label>Dimensions<input name="sizeDimensions" value="${size.dimensions || ''}" /></label>
+      </div>
+    `;
+  }
+
+  function variantRow(variant = {}) {
+    return `
+      <div class="row-card variant-row">
+        <label>Color<input name="variantColors" value="${variant.color || ''}" required /></label>
+        <label>Stock Quantity<input type="number" min="0" name="variantQuantities" value="${variant.quantity || 0}" required /></label>
+        <label>Low Stock Threshold<input type="number" min="1" name="variantThresholds" value="${variant.lowStockThreshold || 3}" required /></label>
+        <label>Image URLs (comma-separated)<input name="variantImageUrls" value="${(variant.images || []).map((image) => image.url || image).join(', ')}" /></label>
+      </div>
+    `;
+  }
+
+  function bootForm() {
+    const sizesBlock = document.getElementById("sizesBlock");
+    const variantsBlock = document.getElementById("variantsBlock");
+
+    const sizes = existingProduct?.sizes?.length ? existingProduct.sizes : [{ size: "", dimensions: "" }];
+    const variants = existingProduct?.variants?.length ? existingProduct.variants : [{ color: "", quantity: 0, lowStockThreshold: 3, images: [] }];
+
+    sizesBlock.innerHTML = sizes.map(sizeRow).join("");
+    variantsBlock.innerHTML = variants.map(variantRow).join("");
+
+    document.getElementById("addSizeBtn").addEventListener("click", () => {
+      sizesBlock.insertAdjacentHTML("beforeend", sizeRow());
+    });
+
+    document.getElementById("addVariantBtn").addEventListener("click", () => {
+      variantsBlock.insertAdjacentHTML("beforeend", variantRow());
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", bootForm);
+</script>
+
+<style>
+.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.form-shell { max-width: 980px; margin: auto; }
+.admin-top { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16px; padding: 1rem; }
+.admin-form { margin-top: 1rem; background: #fff; border-radius: 16px; padding: 1rem; display: grid; gap: 0.8rem; }
+.admin-form label { display: grid; gap: 0.3rem; font-weight: 600; }
+.admin-form input, .admin-form textarea { border: 1px solid #d8dccf; border-radius: 10px; padding: 0.65rem 0.8rem; }
+.repeat-block { display: grid; gap: 0.6rem; }
+.row-card { border: 1px solid #e7ebdf; border-radius: 12px; padding: 0.8rem; display: grid; gap: 0.6rem; grid-template-columns: repeat(2, 1fr); }
+.variant-row { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 900px) {
+  .row-card, .variant-row { grid-template-columns: 1fr; }
+}
+</style>
+
+<%- include('../partials/footer.ejs') %>
