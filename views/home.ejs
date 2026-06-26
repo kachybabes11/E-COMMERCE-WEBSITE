@@ -93,16 +93,16 @@
       <p>Real stories from women carrying Chicnstraps across cities.</p>
     </div>
 
-    <div class="testimonial-track" data-review-carousel>
-      <% testimonials.forEach((item) => { %>
-      <article class="testimonial-card glass-card">
-        <img src="<%= item.avatar %>" alt="<%= item.name %>" class="avatar" loading="lazy" />
-        <h3><%= item.name %></h3>
-        <small><%= item.role %></small>
-        <p class="stars"><%= '*'.repeat(item.rating) %><%= '.'.repeat(5 - item.rating) %></p>
-        <p>"<%= item.quote %>"</p>
+    <div class="single-review-wrap">
+      <article class="single-review-card glass-card">
+        <img src="<%= testimonial.avatar %>" alt="<%= testimonial.name %>" class="avatar" loading="lazy" />
+        <div class="review-body">
+          <div class="review-stars"><%= '★'.repeat(testimonial.rating) %><%= '☆'.repeat(5 - testimonial.rating) %></div>
+          <blockquote>"<%= testimonial.quote %>"</blockquote>
+          <h3><%= testimonial.name %></h3>
+          <small><%= testimonial.role %></small>
+        </div>
       </article>
-      <% }) %>
     </div>
   </section>
 

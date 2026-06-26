@@ -169,6 +169,16 @@ export async function ensureDatabase() {
 
     CREATE UNIQUE INDEX IF NOT EXISTS wishlists_user_product_color ON wishlists (user_id, product_id, color);
 
+    CREATE TABLE IF NOT EXISTS customer_reviews (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      order_id INTEGER REFERENCES orders(id) ON DELETE SET NULL,
+      reviewer_name TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      review_text TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT now()
+    );
+
     CREATE INDEX IF NOT EXISTS products_active_idx ON products (is_active);
     CREATE INDEX IF NOT EXISTS orders_created_idx ON orders (created_at DESC);
     CREATE INDEX IF NOT EXISTS orders_status_idx ON orders (order_status, payment_status);

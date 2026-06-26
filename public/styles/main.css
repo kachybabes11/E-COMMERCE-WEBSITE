@@ -866,15 +866,54 @@ body[data-theme="dark"] .theme-moon {
   margin: 3rem 0;
 }
 
-.testimonial-track {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  transition: transform 0.55s ease;
+.single-review-wrap {
+  display: flex;
+  justify-content: center;
 }
 
-.testimonial-card {
-  padding: 1rem;
+.single-review-card {
+  max-width: 640px;
+  width: 100%;
+  padding: 2rem 2.2rem;
+  display: flex;
+  gap: 1.4rem;
+  align-items: flex-start;
+}
+
+.single-review-card .avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.review-body {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.review-stars {
+  color: var(--gold);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+}
+
+.review-body blockquote {
+  margin: 0;
+  font-size: 1.07rem;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.review-body h3 {
+  margin: 0.3rem 0 0;
+  font-size: 1rem;
+}
+
+.review-body small {
+  color: var(--muted);
 }
 
 .avatar {
@@ -882,11 +921,6 @@ body[data-theme="dark"] .theme-moon {
   height: 52px;
   border-radius: 999px;
   object-fit: cover;
-}
-
-.stars {
-  color: var(--gold);
-  letter-spacing: 0.12em;
 }
 
 .feature-grid {

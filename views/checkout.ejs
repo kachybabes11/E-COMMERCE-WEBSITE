@@ -1,147 +1,291 @@
 <%- include('../partials/header.ejs') %>
 
-<main class="page-content checkout-page">
-  <section class="checkout-card">
-    <h1>Checkout</h1>
-    <p class="checkout-note">Complete your order details and pay securely with Paystack.</p>
+<main class="page-content checkout-page" data-checkout-subtotal="<%= Number(subtotal || 0) %>">
+  <section class="checkout-shell" data-reveal>
+    <header class="checkout-hero glass-card">
+      <h1>Secure Checkout</h1>
+      <p>Complete your delivery details and pay securely with Paystack.</p>
+    </header>
 
     <% if (errors && errors.length) { %>
-      <div class="form-errors">
-        <ul>
-          <% errors.forEach((error) => { %>
-            <li><%= error.msg %></li>
-          <% }) %>
-        </ul>
-      </div>
+    <section class="form-errors glass-card" aria-live="assertive">
+      <h2>Please fix the following</h2>
+      <ul>
+        <% errors.forEach((error) => { %>
+        <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+    </section>
     <% } %>
 
-    <form action="/checkout" method="post" class="checkout-form">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <div class="checkout-grid">
+      <form action="/checkout" method="post" class="checkout-form glass-card">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
-      <div class="form-group">
-        <label for="customerName">Full Name</label>
-        <input id="customerName" name="customerName" value="<%= formData.customerName || "" %>" required />
-      </div>
+        <section class="checkout-section">
+          <h2>Contact & Address</h2>
 
-      <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input id="phone" name="phone" value="<%= formData.phone || "" %>" required />
-      </div>
+          <div class="form-group">
+            <label for="customerName">Full Name</label>
+            <input id="customerName" name="customerName" value="<%= formData.customerName || "" %>" required />
+          </div>
 
-      <div class="form-group">
-        <label for="street">Street Address</label>
-        <input id="street" name="street" value="<%= formData.street || "" %>" required />
-      </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input id="phone" name="phone" value="<%= formData.phone || "" %>" required />
+          </div>
 
-      <div class="grid-two">
-        <div class="form-group">
-          <label for="city">City</label>
-          <input id="city" name="city" value="<%= formData.city || "" %>" required />
-        </div>
-        <div class="form-group">
-          <label for="state">State</label>
-          <input id="state" name="state" value="<%= formData.state || "" %>" required />
-        </div>
-      </div>
+          <div class="form-group">
+            <label for="street">Street Address</label>
+            <input id="street" name="street" value="<%= formData.street || "" %>" required />
+          </div>
 
-      <div class="grid-two">
-        <div class="form-group">
-          <label for="postalCode">Postal Code</label>
-          <input id="postalCode" name="postalCode" value="<%= formData.postalCode || "" %>" required />
-        </div>
-        <div class="form-group">
-          <label for="country">Country</label>
-          <input id="country" name="country" value="<%= formData.country || "Nigeria" %>" />
-        </div>
-      </div>
+          <div class="grid-two">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input id="city" name="city" value="<%= formData.city || "" %>" required />
+            </div>
+            <div class="form-group">
+              <label for="state">State</label>
+              <input id="state" name="state" value="<%= formData.state || "" %>" required />
+            </div>
+          </div>
 
-      <div class="shipping-group">
-        <h2>Shipping Method</h2>
+          <div class="grid-two">
+            <div class="form-group">
+              <label for="postalCode">Postal Code</label>
+              <input id="postalCode" name="postalCode" value="<%= formData.postalCode || "" %>" required />
+            </div>
+            <div class="form-group">
+              <label for="country">Country</label>
+              <input id="country" name="country" value="<%= formData.country || "Nigeria" %>" />
+            </div>
+          </div>
+        </section>
 
-        <label>
-          <input type="radio" name="shippingMethod" value="pickup" <%= (formData.shippingMethod === "pickup" || !formData.shippingMethod) ? "checked" : "" %> /> Pickup (Free)
-        </label>
+        <section class="checkout-section shipping-group">
+          <h2>Shipping Method</h2>
 
-        <label>
-          <input type="radio" name="shippingMethod" value="lagos" <%= formData.shippingMethod === "lagos" ? "checked" : "" %> /> Lagos Delivery
-        </label>
+          <label class="shipping-option">
+            <input type="radio" name="shippingMethod" value="pickup" <%= (formData.shippingMethod === "pickup" || !formData.shippingMethod) ? "checked" : "" %> />
+            <span>
+              <strong>Pickup (Ojota)</strong>
+              <small>Free</small>
+            </span>
+          </label>
 
-        <div class="lagos-area">
-          <label for="lagosArea">Lagos Delivery Area</label>
-          <select id="lagosArea" name="lagosArea">
-            <option value="ikeja" <%= formData.lagosArea === "ikeja" ? "selected" : "" %>>Ikeja — ₦3,000</option>
-            <option value="lekki" <%= formData.lagosArea === "lekki" ? "selected" : "" %>>Lekki — ₦5,000</option>
-            <option value="yaba" <%= formData.lagosArea === "yaba" ? "selected" : "" %>>Yaba — ₦2,500</option>
-            <option value="ajah" <%= formData.lagosArea === "ajah" ? "selected" : "" %>>Ajah — ₦6,000</option>
-          </select>
-        </div>
+          <label class="shipping-option">
+            <input type="radio" name="shippingMethod" value="lagos" <%= formData.shippingMethod === "lagos" ? "checked" : "" %> />
+            <span>
+              <strong>Lagos Delivery</strong>
+              <small>Flat by area</small>
+            </span>
+          </label>
 
-        <label>
-          <input type="radio" name="shippingMethod" value="outside" <%= formData.shippingMethod === "outside" ? "checked" : "" %> /> Outside Lagos (Fee negotiated)
-        </label>
-      </div>
+          <div class="lagos-area" id="lagosAreaWrap">
+            <label for="lagosArea">Lagos Delivery Area</label>
+            <select id="lagosArea" name="lagosArea">
+              <option value="ogudu_ojota" <%= formData.lagosArea === "ogudu_ojota" ? "selected" : "" %>>Ogudu | Ojota — ₦1,000</option>
+              <option value="alapere_ketu" <%= formData.lagosArea === "alapere_ketu" ? "selected" : "" %>>Alapere | Ketu — ₦1,500</option>
+              <option value="ikeja" <%= formData.lagosArea === "ikeja" ? "selected" : "" %>>Ikeja — ₦3,000</option>
+              <option value="anthony_maryland" <%= formData.lagosArea === "anthony_maryland" ? "selected" : "" %>>Anthony | Maryland — ₦3,500</option>
+              <option value="yaba_surulere" <%= formData.lagosArea === "yaba_surulere" ? "selected" : "" %>>Yaba | Surulere — ₦3,500</option>
+              <option value="lekki" <%= formData.lagosArea === "lekki" ? "selected" : "" %>>Lekki — ₦5,000</option>
+              <option value="ajah" <%= formData.lagosArea === "ajah" ? "selected" : "" %>>Ajah — ₦6,000</option>
+            </select>
+          </div>
 
-      <div class="order-summary">
+          <label class="shipping-option">
+            <input type="radio" name="shippingMethod" value="outside" <%= formData.shippingMethod === "outside" ? "checked" : "" %> />
+            <span>
+              <strong>Outside Lagos</strong>
+              <small>Fee negotiated after order</small>
+            </span>
+          </label>
+
+          <div class="outside-lagos-notice" id="outsideLagosNotice">
+            <p>📦 After payment, please send your receipt to our WhatsApp — <a href="https://wa.me/2348000000000" target="_blank" rel="noreferrer"><strong>+234 800 000 0000</strong></a> — so we can confirm your shipping fee and process your delivery.</p>
+          </div>
+        </section>
+
+        <button type="submit" class="button button-primary full-width checkout-submit">Pay with Paystack</button>
+      </form>
+
+      <aside class="checkout-summary glass-card">
         <h2>Order Summary</h2>
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <strong>₦<%= subtotal.toFixed(2) %></strong>
-        </div>
-        <div class="summary-row total">
-          <span>Total</span>
-          <strong>₦<%= subtotal.toFixed(2) %></strong>
-        </div>
-      </div>
 
-      <button type="submit" class="button button-primary full-width">Pay with Paystack</button>
-    </form>
+        <div class="summary-list">
+          <% cart.forEach((item) => { %>
+          <article class="summary-item">
+            <div>
+              <h3><%= item.product_name || item.product?.name || "Product" %></h3>
+              <p><%= item.color %> • Qty <%= item.quantity %></p>
+            </div>
+            <strong>₦<%= formatCurrency((item.unit_price || item.product?.price || 0) * item.quantity) %></strong>
+          </article>
+          <% }) %>
+        </div>
+
+        <div class="summary-totals">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <strong>₦<%= formatCurrency(subtotal) %></strong>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <strong id="shippingPreview">Calculated after selection</strong>
+          </div>
+          <div class="summary-row total">
+            <span>Estimated Total</span>
+            <strong id="totalPreview">₦<%= formatCurrency(subtotal) %></strong>
+          </div>
+        </div>
+
+        <p class="summary-note">Stock is revalidated right before payment to protect against overselling.</p>
+      </aside>
+    </div>
   </section>
 </main>
 
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    const shippingInputs = Array.from(document.querySelectorAll('input[name="shippingMethod"]'));
+    const lagosArea = document.getElementById("lagosArea");
+    const lagosWrap = document.getElementById("lagosAreaWrap");
+    const outsideLagosNotice = document.getElementById("outsideLagosNotice");
+    const shippingPreview = document.getElementById("shippingPreview");
+    const totalPreview = document.getElementById("totalPreview");
+    const subtotal = Number(document.querySelector('.checkout-page')?.getAttribute('data-checkout-subtotal') || 0);
+
+    const shippingFees = {
+      ogudu_ojota: 1000,
+      alapere_ketu: 1500,
+      ikeja: 3000,
+      anthony_maryland: 3500,
+      yaba_surulere: 3500,
+      lekki: 5000,
+      ajah: 6000,
+    };
+
+    function selectedMethod() {
+      const active = shippingInputs.find((input) => input.checked);
+      return active ? active.value : "pickup";
+    }
+
+    function refreshPreview() {
+      const method = selectedMethod();
+      let fee = 0;
+      let feeLabel = "Free";
+
+      if (method === "lagos") {
+        const area = lagosArea ? lagosArea.value : "ikeja";
+        fee = shippingFees[area] || 0;
+        feeLabel = "₦" + Number(fee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else if (method === "outside") {
+        feeLabel = "Negotiated";
+      }
+
+      if (lagosWrap) {
+        lagosWrap.classList.toggle("active", method === "lagos");
+      }
+
+      if (outsideLagosNotice) {
+        outsideLagosNotice.classList.toggle("active", method === "outside");
+      }
+
+      if (shippingPreview) {
+        shippingPreview.textContent = feeLabel;
+      }
+
+      if (totalPreview) {
+        const total = subtotal + fee;
+        totalPreview.textContent = "₦" + Number(total).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    }
+
+    shippingInputs.forEach((input) => {
+      input.addEventListener("change", refreshPreview);
+    });
+
+    if (lagosArea) {
+      lagosArea.addEventListener("change", refreshPreview);
+    }
+
+    refreshPreview();
+  });
+</script>
+
 <style>
 .checkout-page {
-  display: flex;
-  justify-content: center;
-  padding: 4rem 1.5rem;
-  background: #f6f7fb;
-  min-height: 100vh;
+  padding: 2.2rem 1rem 3.2rem;
 }
 
-.checkout-card {
-  width: min(100%, 720px);
-  background: #fff;
-  padding: 2.5rem;
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+.checkout-shell {
+  width: min(1200px, calc(100% - 0.2rem));
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
 }
 
-.checkout-card h1 {
-  margin-bottom: 0.5rem;
-  color: #1a1a2e;
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
 }
 
-.checkout-note {
-  color: #5f6572;
-  margin-bottom: 1.5rem;
+.checkout-hero {
+  padding: 1.3rem 1.4rem;
+}
+
+.checkout-hero h1 {
+  margin-bottom: 0.2rem;
+}
+
+.checkout-hero p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 1rem;
+  align-items: start;
 }
 
 .form-errors {
-  background: #ffe8e8;
-  border: 1px solid #f2c2c2;
+  background: color-mix(in srgb, #ffdfdf 72%, white);
+  border: 1px solid #f0b8b8;
   padding: 1rem 1.25rem;
-  border-radius: 14px;
-  margin-bottom: 1.5rem;
+}
+
+.form-errors h2 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
 }
 
 .form-errors ul {
   margin: 0;
-  padding-left: 1.3rem;
-  color: #a02828;
+  padding-left: 1.1rem;
+  color: #8f1c1c;
 }
 
 .checkout-form {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
+  padding: 1.2rem;
+}
+
+.checkout-section {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.checkout-section h2 {
+  margin: 0;
+  font-size: 1.45rem;
 }
 
 .form-group {
@@ -149,87 +293,170 @@
 }
 
 .form-group label {
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--heading);
 }
 
 .form-group input,
 .form-group select {
-  padding: 0.9rem 1rem;
-  border: 1px solid #d8dbe1;
-  border-radius: 14px;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 75%, #c5baa8 25%);
+  border-radius: 13px;
   font-size: 1rem;
+  background: var(--surface-strong);
+  color: var(--text);
 }
 
 .grid-two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .shipping-group {
-  border: 1px solid #eceef2;
-  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 70%, #d7cab5 30%);
   border-radius: 18px;
-  background: #f9f9ff;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--surface-strong) 90%, #f4eee3 10%);
 }
 
-.shipping-group h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.shipping-group label {
-  display: block;
-  margin-bottom: 0.75rem;
+.shipping-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 75%, #d6cbb9 25%);
+  background: var(--surface-strong);
   cursor: pointer;
 }
 
-.lagos-area {
-  margin-bottom: 1rem;
+.shipping-option span {
+  display: grid;
+  line-height: 1.2;
 }
 
-.order-summary {
-  margin-top: 1rem;
-  padding: 1.25rem;
-  border-radius: 18px;
-  background: #f6f8ff;
-  border: 1px solid #e8ecff;
+.shipping-option small {
+  color: var(--muted);
+}
+
+.lagos-area {
+  margin: 0.15rem 0 0.75rem;
+  display: none;
+}
+
+.lagos-area.active {
+  display: block;
+}
+
+.outside-lagos-notice {
+  display: none;
+  margin: 0.15rem 0 0.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, #fff8e6 80%, white);
+  border: 1px solid #f0d080;
+  color: #7a5800;
+  font-size: 0.97rem;
+  line-height: 1.55;
+}
+
+.outside-lagos-notice.active {
+  display: block;
+}
+
+.outside-lagos-notice a {
+  color: #5a3e00;
+}
+
+.checkout-submit {
+  margin-top: 0.1rem;
+}
+
+.checkout-summary {
+  padding: 1.15rem;
+  position: sticky;
+  top: 110px;
+}
+
+.checkout-summary h2 {
+  margin: 0 0 0.8rem;
+}
+
+.summary-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 0.95rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 75%, #d4c8b7 25%);
+  border-radius: 12px;
+  padding: 0.65rem 0.7rem;
+  background: var(--surface-strong);
+}
+
+.summary-item h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.summary-item p {
+  margin: 0.1rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.summary-item strong {
+  white-space: nowrap;
+}
+
+.summary-totals {
+  border-top: 1px solid color-mix(in srgb, var(--surface-border) 80%, #cfc2af 20%);
+  padding-top: 0.75rem;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.8rem;
-  color: #30343f;
+  margin-bottom: 0.72rem;
 }
 
 .summary-row.total {
-  font-weight: 700;
-  border-top: 1px solid #dee1ed;
-  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--surface-border) 80%, #cfc2af 20%);
+  margin-top: 0.2rem;
+  padding-top: 0.8rem;
+  font-weight: 800;
 }
 
-.button {
-  padding: 1rem 1.2rem;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-}
-
-.button-primary {
-  width: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  font-size: 1rem;
-  font-weight: 700;
+.summary-note {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .full-width {
   width: 100%;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 980px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
   .grid-two {
     grid-template-columns: 1fr;
   }

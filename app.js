@@ -596,7 +596,8 @@ app.get("/", (req, res) => {
       quote: "High quality, rich texture, and the color looked exactly like the photos.",
     },
   ]
-  res.render("home", { featured, testimonials })
+  const testimonial = testimonials[Math.floor(Math.random() * testimonials.length)]
+  res.render("home", { featured, testimonial })
 })
 
 app.get("/products", async (req, res, next) => {
@@ -1650,6 +1651,27 @@ app.get("/quality", (req, res) => {
 
 app.get("/reviews", (req, res) => {
   res.render("reviews")
+})
+
+app.post("/reviews", ensureAuthenticated, body("reviewer_name").trim().notEmpty().escape(), body("rating").isInt({ min: 1, max: 5 }), body("review_text").trim().notEmpty().isLength({ max: 1000 }).escape(), async (req, res, next) => {
+  try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      req.flash("error", "Please fill in all fields correctly.")
+      return res.redirect("back")
+    }
+    const { reviewer_name, rating, review_text, order_id } = req.body
+    await db.query(
+      `INSERT INTO customer_reviews (user_id, order_id, reviewer_name, rating, review_text)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [req.user.id, order_id ? Number(order_id) : null, reviewer_name, Number(rating), review_text]
+    )
+    req.flash("success", "Thank you for your review!")
+    const redirectTo = order_id ? `/thank-you/${order_id}` : "/"
+    res.redirect(redirectTo)
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.get("/help", (req, res) => {
