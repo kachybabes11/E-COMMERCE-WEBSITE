@@ -7,9 +7,21 @@
       <a href="/admin/products/new" class="button button-primary">Add Product</a>
     </div>
 
-    <div class="admin-list">
+    <div class="admin-search-wrap">
+      <input
+        type="search"
+        id="adminProductSearch"
+        class="admin-search-input"
+        placeholder="Search products by name…"
+        autocomplete="off"
+        aria-label="Search products"
+      />
+      <span class="admin-search-count" id="adminSearchCount"></span>
+    </div>
+
+    <div class="admin-list" id="adminProductList">
       <% products.forEach((product) => { %>
-      <article class="admin-item">
+      <article class="admin-item" data-product-name="<%= product.name.toLowerCase() %>">
         <div>
           <h3><%= product.name %></h3>
           <p><%= product.categories || 'Uncategorized' %></p>
@@ -28,6 +40,8 @@
         </div>
       </article>
       <% }) %>
+
+      <p class="admin-no-results" id="adminNoResults" style="display:none;">No products match your search.</p>
     </div>
   </section>
 </main>
@@ -36,13 +50,92 @@
 .admin-page { padding: 2rem 1rem; background: #f6f7f3; }
 .admin-shell { max-width: 1150px; margin: auto; }
 .admin-top.actions { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16px; padding: 1rem 1.2rem; }
-.admin-list { display: grid; gap: 0.8rem; margin-top: 1rem; }
-.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; background: #fff; border-radius: 14px; padding: 1rem; align-items: center; }
+.admin-list { display: grid; gap: 0.8rem; margin-top: 0.6rem; }
+.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; background: #fff; border-radius: 14px; padding: 1rem; align-items: center; transition: opacity 0.15s; }
+.admin-item[hidden] { display: none; }
 .item-actions { display: flex; gap: 0.6rem; justify-content: flex-end; align-items: center; }
+
+.admin-search-wrap {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  border: 1.5px solid #e3e3de;
+  border-radius: 14px;
+  padding: 0.55rem 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.admin-search-wrap:focus-within {
+  border-color: #c5a463;
+  box-shadow: 0 0 0 3px rgba(197,164,99,0.15);
+}
+
+.admin-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+  background: transparent;
+  color: #171514;
+}
+
+.admin-search-input::placeholder {
+  color: #aaa;
+}
+
+.admin-search-count {
+  font-size: 0.82rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.admin-no-results {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #888;
+  background: #fff;
+  border-radius: 14px;
+  font-size: 0.97rem;
+}
+
 @media (max-width: 860px) {
   .admin-item { grid-template-columns: 1fr; }
   .item-actions { justify-content: flex-start; }
 }
 </style>
+
+<script>
+(function () {
+  const input = document.getElementById('adminProductSearch');
+  const items = Array.from(document.querySelectorAll('#adminProductList .admin-item'));
+  const countEl = document.getElementById('adminSearchCount');
+  const noResults = document.getElementById('adminNoResults');
+  const total = items.length;
+
+  countEl.textContent = total + ' product' + (total !== 1 ? 's' : '');
+
+  input.addEventListener('input', function () {
+    const q = input.value.trim().toLowerCase();
+    let visible = 0;
+
+    items.forEach(function (item) {
+      const name = item.getAttribute('data-product-name') || '';
+      const match = !q || name.includes(q);
+      item.hidden = !match;
+      if (match) visible++;
+    });
+
+    countEl.textContent = q
+      ? visible + ' of ' + total + ' match' + (visible !== 1 ? 'es' : '')
+      : total + ' product' + (total !== 1 ? 's' : '');
+
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  });
+})();
+</script>
 
 <%- include('../partials/footer.ejs') %>
