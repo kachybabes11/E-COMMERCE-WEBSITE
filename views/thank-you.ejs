@@ -1,7 +1,8 @@
 <%- include('../partials/header.ejs') %>
 
-<main class="page-content checkout-page">
-  <section class="checkout-card success-card">
+<main class="page-content thankyou-page">
+  <div class="thankyou-wrap">
+  <section class="thankyou-card success-card">
     <div class="success-icon">✅</div>
     <h1>Thank you for your order!</h1>
     <p class="thank-you">Your order has been processed successfully.</p>
@@ -52,10 +53,10 @@
       <% }) %>
     </div>
 
-    <a href="/orders" class="button button-primary">View your orders</a>
+    <a href="/orders" class="button button-primary">View Your Orders</a>
   </section>
 
-  <section class="checkout-card review-form-card">
+  <section class="thankyou-card review-form-card">
     <h2>How was your experience?</h2>
     <p class="review-subtitle">We'd love to hear from you. Leave a quick review for your order.</p>
 
@@ -90,27 +91,34 @@
       <button type="submit" class="button button-primary">Submit Review</button>
     </form>
   </section>
+  </div>
 </main>
 
 <%- include('../partials/footer.ejs') %>
 
 <style>
-.checkout-page {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 3rem 1rem;
-  background: #f6f7fb;
+.thankyou-page {
+  padding: 3rem 1rem 5rem;
+  background: var(--bg);
 }
 
-.checkout-card {
+.thankyou-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.8rem;
+  width: 100%;
+}
+
+.thankyou-card {
   width: 100%;
   max-width: 760px;
-  background: #fff;
-  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl);
   padding: 2.5rem;
-  box-shadow: 0 30px 70px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
 }
 
 .success-card {
@@ -126,9 +134,10 @@
 .shipping-card,
 .order-items-card {
   text-align: left;
-  background: #f9fbff;
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
   border-radius: 18px;
-  padding: 1.5rem;
+  padding: 1.4rem;
   margin-top: 1.5rem;
 }
 
@@ -147,7 +156,7 @@
 }
 
 .order-items-card .item-row {
-  border-bottom: 1px solid #e8edf6;
+  border-bottom: 1px solid var(--surface-border);
   padding-bottom: 1rem;
 }
 
@@ -188,12 +197,21 @@
 .review-field input,
 .review-field textarea {
   padding: 0.75rem 0.9rem;
-  border: 1px solid #dde2ec;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 75%, #c5baa8 25%);
   border-radius: 12px;
   font-size: 1rem;
   font-family: inherit;
-  background: #fafbff;
+  background: var(--surface-strong);
+  color: var(--text);
   resize: vertical;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.review-field input:focus,
+.review-field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent);
 }
 
 .star-picker {

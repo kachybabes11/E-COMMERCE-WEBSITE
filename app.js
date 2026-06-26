@@ -835,7 +835,7 @@ app.post(
       const cart = await getCurrentCartItems(req)
       const errors = validationResult(req)
       const formData = req.body
-      const shippingFees = { ikeja: 3000, lekki: 5000, yaba: 2500, ajah: 6000 }
+      const shippingFees = { ogudu: 1000, alapere: 1500, ikeja: 3000, anthony: 3500, yaba: 3500, lekki: 5000, ajah: 6000 }
       if (!cart.length) {
         req.session.messages = [{ type: "error", text: "Your cart is empty." }]
         return res.redirect("/cart")

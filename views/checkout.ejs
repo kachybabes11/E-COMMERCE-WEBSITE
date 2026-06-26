@@ -3,8 +3,15 @@
 <main class="page-content checkout-page" data-checkout-subtotal="<%= Number(subtotal || 0) %>">
   <section class="checkout-shell" data-reveal>
     <header class="checkout-hero glass-card">
+      <nav class="checkout-breadcrumb">
+        <a href="/cart">Cart</a>
+        <span>›</span>
+        <strong>Details</strong>
+        <span>›</span>
+        <span class="bc-dim">Payment</span>
+      </nav>
       <h1>Secure Checkout</h1>
-      <p>Complete your delivery details and pay securely with Paystack.</p>
+      <p>Fill in your delivery details. You’ll be redirected to Paystack to complete payment securely.</p>
     </header>
 
     <% if (errors && errors.length) { %>
@@ -85,11 +92,11 @@
           <div class="lagos-area" id="lagosAreaWrap">
             <label for="lagosArea">Lagos Delivery Area</label>
             <select id="lagosArea" name="lagosArea">
-              <option value="ogudu_ojota" <%= formData.lagosArea === "ogudu_ojota" ? "selected" : "" %>>Ogudu | Ojota — ₦1,000</option>
-              <option value="alapere_ketu" <%= formData.lagosArea === "alapere_ketu" ? "selected" : "" %>>Alapere | Ketu — ₦1,500</option>
+              <option value="ogudu" <%= formData.lagosArea === "ogudu" ? "selected" : "" %>>Ogudu | Ojota — ₦1,000</option>
+              <option value="alapere" <%= formData.lagosArea === "alapere" ? "selected" : "" %>>Alapere | Ketu — ₦1,500</option>
               <option value="ikeja" <%= formData.lagosArea === "ikeja" ? "selected" : "" %>>Ikeja — ₦3,000</option>
-              <option value="anthony_maryland" <%= formData.lagosArea === "anthony_maryland" ? "selected" : "" %>>Anthony | Maryland — ₦3,500</option>
-              <option value="yaba_surulere" <%= formData.lagosArea === "yaba_surulere" ? "selected" : "" %>>Yaba | Surulere — ₦3,500</option>
+              <option value="anthony" <%= formData.lagosArea === "anthony" ? "selected" : "" %>>Anthony | Maryland — ₦3,500</option>
+              <option value="yaba" <%= formData.lagosArea === "yaba" ? "selected" : "" %>>Yaba | Surulere — ₦3,500</option>
               <option value="lekki" <%= formData.lagosArea === "lekki" ? "selected" : "" %>>Lekki — ₦5,000</option>
               <option value="ajah" <%= formData.lagosArea === "ajah" ? "selected" : "" %>>Ajah — ₦6,000</option>
             </select>
@@ -108,7 +115,9 @@
           </div>
         </section>
 
-        <button type="submit" class="button button-primary full-width checkout-submit">Pay with Paystack</button>
+        <button type="submit" class="button button-primary full-width checkout-submit">
+          🔒 Pay Securely with Paystack
+        </button>
       </form>
 
       <aside class="checkout-summary glass-card">
@@ -158,11 +167,11 @@
     const subtotal = Number(document.querySelector('.checkout-page')?.getAttribute('data-checkout-subtotal') || 0);
 
     const shippingFees = {
-      ogudu_ojota: 1000,
-      alapere_ketu: 1500,
+      ogudu: 1000,
+      alapere: 1500,
       ikeja: 3000,
-      anthony_maryland: 3500,
-      yaba_surulere: 3500,
+      anthony: 3500,
+      yaba: 3500,
       lekki: 5000,
       ajah: 6000,
     };
@@ -307,6 +316,14 @@
   font-size: 1rem;
   background: var(--surface-strong);
   color: var(--text);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent);
 }
 
 .grid-two {
@@ -333,6 +350,12 @@
   border: 1px solid color-mix(in srgb, var(--surface-border) 75%, #d6cbb9 25%);
   background: var(--surface-strong);
   cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.shipping-option:has(input:checked) {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 9%, var(--surface-strong));
 }
 
 .shipping-option span {
@@ -374,7 +397,34 @@
 }
 
 .checkout-submit {
-  margin-top: 0.1rem;
+  margin-top: 0.5rem;
+  padding: 1.05rem 1.2rem;
+  font-size: 1.05rem;
+  border-radius: 16px;
+  letter-spacing: 0.05em;
+}
+
+.checkout-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.checkout-breadcrumb a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.checkout-breadcrumb strong {
+  color: var(--heading);
+}
+
+.bc-dim {
+  opacity: 0.45;
 }
 
 .checkout-summary {
