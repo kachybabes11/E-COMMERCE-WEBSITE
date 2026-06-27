@@ -191,9 +191,18 @@ function slugify(value) {
 async function getDashboardAnalytics() {
   const [salesRow, ordersRow, bestSellers, lowStock, monthlySales] = await Promise.all([
     db.query(
-      `SELECT COALESCE(SUM(total_amount), 0) AS total_sales, COALESCE(SUM(total_amount), 0) AS revenue
-       FROM orders
-       WHERE payment_status = 'Paid'`
+      `SELECT
+        COALESCE((
+          SELECT SUM(oi.total_price)
+          FROM order_items oi
+          JOIN orders o ON o.id = oi.order_id
+          WHERE o.payment_status = 'Paid'
+        ), 0) AS total_sales,
+        COALESCE((
+          SELECT SUM(total_amount)
+          FROM orders
+          WHERE payment_status = 'Paid'
+        ), 0) AS revenue`
     ),
     db.query(`SELECT COUNT(*)::int AS total_orders FROM orders`),
     db.query(
@@ -215,11 +224,12 @@ async function getDashboardAnalytics() {
        LIMIT 20`
     ),
     db.query(
-      `SELECT TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, COALESCE(SUM(total_amount), 0) AS amount
-       FROM orders
-       WHERE payment_status = 'Paid'
-       GROUP BY DATE_TRUNC('month', created_at)
-       ORDER BY DATE_TRUNC('month', created_at) ASC`
+      `SELECT TO_CHAR(DATE_TRUNC('month', o.created_at), 'YYYY-MM') AS month, COALESCE(SUM(oi.total_price), 0) AS amount
+       FROM orders o
+       JOIN order_items oi ON oi.order_id = o.id
+       WHERE o.payment_status = 'Paid'
+       GROUP BY DATE_TRUNC('month', o.created_at)
+       ORDER BY DATE_TRUNC('month', o.created_at) ASC`
     ),
   ])
 

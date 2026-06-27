@@ -27,11 +27,12 @@
 </main>
 
 <style>
-.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-page { padding: 2rem 1rem; background: var(--bg); color: var(--text); }
 .admin-shell { max-width: 1000px; margin: auto; display: grid; gap: 1rem; }
-.admin-top, .admin-panel { background: #fff; border-radius: 14px; padding: 1rem; }
-.order-line { display: grid; grid-template-columns: 1.4fr 1fr 1fr; border-bottom: 1px solid #ebefe6; padding: 0.8rem 0; text-decoration: none; color: inherit; }
+.admin-top, .admin-panel { background: var(--surface); border-radius: 14px; padding: 1rem; border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
+.order-line { display: grid; grid-template-columns: 1.4fr 1fr 1fr; border-bottom: 1px solid color-mix(in srgb, var(--surface-border) 72%, #d8cfbe 28%); padding: 0.8rem 0; text-decoration: none; color: inherit; }
 .order-line:last-child { border-bottom: 0; }
+.admin-panel p { color: var(--muted); }
 @media (max-width: 780px) { .order-line { grid-template-columns: 1fr; gap: 0.3rem; } }
 </style>
 

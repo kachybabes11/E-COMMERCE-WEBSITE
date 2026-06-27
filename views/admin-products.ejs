@@ -47,11 +47,11 @@
 </main>
 
 <style>
-.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-page { padding: 2rem 1rem; background: var(--bg); color: var(--text); }
 .admin-shell { max-width: 1150px; margin: auto; }
-.admin-top.actions { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16px; padding: 1rem 1.2rem; }
+.admin-top.actions { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border-radius: 16px; padding: 1rem 1.2rem; border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
 .admin-list { display: grid; gap: 0.8rem; margin-top: 0.6rem; }
-.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; background: #fff; border-radius: 14px; padding: 1rem; align-items: center; transition: opacity 0.15s; }
+.admin-item { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; background: var(--surface); border-radius: 14px; padding: 1rem; align-items: center; transition: opacity 0.15s; border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
 .admin-item[hidden] { display: none; }
 .item-actions { display: flex; gap: 0.6rem; justify-content: flex-end; align-items: center; }
 
@@ -60,17 +60,17 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: #fff;
-  border: 1.5px solid #e3e3de;
+  background: var(--surface);
+  border: 1.5px solid var(--surface-border);
   border-radius: 14px;
   padding: 0.55rem 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.18s, box-shadow 0.18s;
 }
 
 .admin-search-wrap:focus-within {
-  border-color: #c5a463;
-  box-shadow: 0 0 0 3px rgba(197,164,99,0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent);
 }
 
 .admin-search-input {
@@ -80,26 +80,27 @@
   font-size: 1rem;
   font-family: inherit;
   background: transparent;
-  color: #171514;
+  color: var(--text);
 }
 
 .admin-search-input::placeholder {
-  color: #aaa;
+  color: var(--muted);
 }
 
 .admin-search-count {
   font-size: 0.82rem;
-  color: #888;
+  color: var(--muted);
   white-space: nowrap;
 }
 
 .admin-no-results {
   text-align: center;
   padding: 2.5rem 1rem;
-  color: #888;
-  background: #fff;
+  color: var(--muted);
+  background: var(--surface);
   border-radius: 14px;
   font-size: 0.97rem;
+  border: 1px solid var(--surface-border);
 }
 
 @media (max-width: 860px) {

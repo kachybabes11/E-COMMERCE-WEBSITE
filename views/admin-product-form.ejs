@@ -82,14 +82,14 @@
 </script>
 
 <style>
-.admin-page { padding: 2rem 1rem; background: #f6f7f3; }
+.admin-page { padding: 2rem 1rem; background: var(--bg); color: var(--text); }
 .form-shell { max-width: 980px; margin: auto; }
-.admin-top { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16px; padding: 1rem; }
-.admin-form { margin-top: 1rem; background: #fff; border-radius: 16px; padding: 1rem; display: grid; gap: 0.8rem; }
+.admin-top { display: flex; justify-content: space-between; align-items: center; background: var(--surface); border-radius: 16px; padding: 1rem; border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
+.admin-form { margin-top: 1rem; background: var(--surface); border-radius: 16px; padding: 1rem; display: grid; gap: 0.8rem; border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
 .admin-form label { display: grid; gap: 0.3rem; font-weight: 600; }
-.admin-form input, .admin-form textarea { border: 1px solid #d8dccf; border-radius: 10px; padding: 0.65rem 0.8rem; }
+.admin-form input, .admin-form textarea { border: 1px solid color-mix(in srgb, var(--surface-border) 72%, #d8dccf 28%); border-radius: 10px; padding: 0.65rem 0.8rem; background: var(--surface-strong); color: var(--text); }
 .repeat-block { display: grid; gap: 0.6rem; }
-.row-card { border: 1px solid #e7ebdf; border-radius: 12px; padding: 0.8rem; display: grid; gap: 0.6rem; grid-template-columns: repeat(2, 1fr); }
+.row-card { border: 1px solid var(--surface-border); border-radius: 12px; padding: 0.8rem; display: grid; gap: 0.6rem; grid-template-columns: repeat(2, 1fr); background: var(--surface-strong); }
 .variant-row { grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 900px) {
   .row-card, .variant-row { grid-template-columns: 1fr; }

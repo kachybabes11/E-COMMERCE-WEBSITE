@@ -9,16 +9,18 @@
 
     <section class="admin-grid metrics-grid">
       <article class="metric-card">
-        <h3>Total Sales</h3>
+        <h3>Bag Sales</h3>
         <strong>N<%= formatCurrency(analytics.totalSales) %></strong>
+        <small>Excluding delivery fees</small>
       </article>
       <article class="metric-card">
         <h3>Total Orders</h3>
         <strong><%= analytics.totalOrders %></strong>
       </article>
       <article class="metric-card">
-        <h3>Revenue</h3>
+        <h3>Total Revenue</h3>
         <strong>N<%= formatCurrency(analytics.revenue) %></strong>
+        <small>Including delivery fees</small>
       </article>
       <article class="metric-card actions">
         <a href="/admin/products" class="button button-primary">Manage Products</a>
@@ -86,16 +88,20 @@
 </script>
 
 <style>
-.admin-page { padding: 2rem 1rem; background: linear-gradient(180deg, #f5f4ef 0%, #eef3f2 100%); }
+.admin-page { padding: 2rem 1rem; background: var(--bg); color: var(--text); }
 .admin-shell { max-width: 1200px; margin: auto; display: grid; gap: 1rem; }
-.admin-top { background: #ffffff; border-radius: 18px; padding: 1.2rem 1.3rem; }
+.admin-top { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 18px; padding: 1.2rem 1.3rem; box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
+.admin-top p { color: var(--muted); }
 .admin-grid { display: grid; gap: 1rem; }
 .metrics-grid { grid-template-columns: repeat(4, 1fr); }
-.metric-card, .admin-panel { background: #ffffff; border-radius: 18px; padding: 1.2rem; }
-.metric-card strong { font-size: 1.4rem; }
+.metric-card, .admin-panel { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 18px; padding: 1.2rem; box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); }
+.metric-card strong { font-size: 1.4rem; display: block; margin-top: 0.15rem; }
+.metric-card small { color: var(--muted); }
 .metric-card.actions { display: grid; gap: 0.5rem; }
 .two-col { grid-template-columns: repeat(2, 1fr); }
-.row-line { display: flex; justify-content: space-between; border-bottom: 1px solid #ece8df; padding: 0.6rem 0; }
+.row-line { display: flex; justify-content: space-between; border-bottom: 1px solid color-mix(in srgb, var(--surface-border) 72%, #cfc2af 28%); padding: 0.6rem 0; }
+.row-line:last-child { border-bottom: 0; }
+.admin-panel h2 { margin-bottom: 0.8rem; }
 @media (max-width: 950px) {
   .metrics-grid, .two-col { grid-template-columns: 1fr; }
 }

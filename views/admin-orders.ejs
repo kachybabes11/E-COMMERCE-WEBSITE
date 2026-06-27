@@ -41,16 +41,19 @@
 <style>
 .admin-orders-page {
   padding: 3rem 1rem;
-  background: #f6f7fb;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .admin-orders-card {
   max-width: 1200px;
   margin: auto;
-  background: #fff;
+  background: var(--surface);
   padding: 2rem;
   border-radius: 24px;
-  box-shadow: 0 25px 55px rgba(0,0,0,0.12);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
 .admin-header {
@@ -71,7 +74,9 @@
 .admin-actions select {
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 72%, #cfc2af 28%);
+  background: var(--surface-strong);
+  color: var(--text);
 }
 
 .orders-table {
@@ -84,15 +89,25 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr 1.3fr 1fr 1fr;
   padding: 1rem 1.2rem;
-  background: #f9fbff;
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
   border-radius: 16px;
   text-decoration: none;
   color: inherit;
 }
 
-.order-status.pending { background: #fff3cd; color: #986d04; padding: 0.4rem 0.7rem; border-radius: 999px; }
-.order-status.processing { background: #cfe2ff; color: #084298; padding: 0.4rem 0.7rem; border-radius: 999px; }
-.order-status.shipped { background: #d1e7dd; color: #0f5132; padding: 0.4rem 0.7rem; border-radius: 999px; }
-.order-status.delivered { background: #d1fccf; color: #1f6217; padding: 0.4rem 0.7rem; border-radius: 999px; }
-.order-status.cancelled { background: #f8d7da; color: #842029; padding: 0.4rem 0.7rem; border-radius: 999px; }
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.order-status.pending { background: color-mix(in srgb, #c79b3b 18%, var(--surface-strong)); color: #8a6420; }
+.order-status.processing { background: color-mix(in srgb, #4a86d4 18%, var(--surface-strong)); color: #295a96; }
+.order-status.shipped { background: color-mix(in srgb, #5f9c72 18%, var(--surface-strong)); color: #356245; }
+.order-status.delivered { background: color-mix(in srgb, #79a85c 18%, var(--surface-strong)); color: #4a7135; }
+.order-status.cancelled { background: color-mix(in srgb, #d67272 18%, var(--surface-strong)); color: #8d3c3c; }
 </style>

@@ -52,12 +52,18 @@
 <%- include('../partials/footer.ejs') %>
 
 <style>
-.admin-order-detail-page { padding: 3rem 1rem; background: #f6f7fb; min-height: 100vh; }
-.admin-detail-card { max-width: 1100px; margin: auto; background: #fff; border-radius: 24px; padding: 2rem; box-shadow: 0 25px 55px rgba(0,0,0,0.12); }
+.admin-order-detail-page { padding: 3rem 1rem; background: var(--bg); min-height: 100vh; color: var(--text); }
+.admin-detail-card { max-width: 1100px; margin: auto; background: var(--surface); border-radius: 24px; padding: 2rem; border: 1px solid var(--surface-border); box-shadow: var(--shadow-lg); backdrop-filter: blur(10px); }
 .header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
 .metadata-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0; }
-.metadata-grid div { background: #f9fbff; padding: 1rem 1.2rem; border-radius: 16px; }
-.address-card, .items-card { background: #f9fbff; padding: 1.5rem; border-radius: 18px; margin-bottom: 1.5rem; }
-.item-row { display: grid; grid-template-columns: 2.2fr 0.7fr 1fr 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e8edf6; }
+.metadata-grid div { background: var(--surface-strong); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--surface-border); }
+.metadata-grid span { color: var(--muted); display: block; margin-bottom: 0.25rem; }
+.address-card, .items-card { background: var(--surface-strong); padding: 1.5rem; border-radius: 18px; margin-bottom: 1.5rem; border: 1px solid var(--surface-border); }
+.item-row { display: grid; grid-template-columns: 2.2fr 0.7fr 1fr 1fr; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid color-mix(in srgb, var(--surface-border) 70%, #d8cfbe 30%); }
+.item-row p { margin: 0.1rem 0 0; color: var(--muted); }
 .item-row:last-child { border-bottom: none; }
+@media (max-width: 820px) {
+  .metadata-grid { grid-template-columns: 1fr 1fr; }
+  .item-row { grid-template-columns: 1fr; }
+}
 </style>
