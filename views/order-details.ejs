@@ -53,17 +53,21 @@
 <style>
 .order-detail-page {
   padding: 3rem 1rem;
-  background: #f6f7fb;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
 }
 
 .order-detail-card {
   max-width: 1000px;
   margin: auto;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
   border-radius: 26px;
   padding: 2rem;
-  box-shadow: 0 28px 55px rgba(0,0,0,0.1);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
 .status-grid {
@@ -74,14 +78,16 @@
 }
 
 .status-grid div {
-  background: #f9fbff;
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
   padding: 1rem;
   border-radius: 16px;
 }
 
 .address-card,
 .items-card {
-  background: #f9fbff;
+  background: var(--surface-strong);
+  border: 1px solid var(--surface-border);
   padding: 1.5rem;
   border-radius: 18px;
   margin-bottom: 1.5rem;
@@ -92,8 +98,18 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid #e8edf6;
+  border-bottom: 1px solid color-mix(in srgb, var(--surface-border) 70%, #d8cfbe 30%);
 }
 
 .item-row:last-child { border-bottom: none; }
+
+@media (max-width: 720px) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-row {
+    flex-direction: column;
+  }
+}
 </style>
