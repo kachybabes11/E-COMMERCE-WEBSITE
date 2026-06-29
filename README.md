@@ -104,6 +104,40 @@ After payment verification:
 - Cart is cleared
 - Notifications are sent
 
+## Paystack Channel Configuration
+
+Checkout now sends an explicit Paystack `channels` list during transaction initialization.
+
+Set `PAYSTACK_CHANNELS` in your `.env` as a comma-separated list:
+
+- `card`
+- `bank`
+- `ussd`
+- `bank_transfer`
+- `qr`
+- `mobile_money`
+- `eft`
+
+Example:
+```
+PAYSTACK_CHANNELS=card,bank,ussd,bank_transfer,qr,mobile_money,eft
+```
+
+You can also use:
+```
+PAYSTACK_CHANNELS=all
+```
+
+### Webhook
+
+Set your Paystack webhook URL to:
+
+```
+POST /paystack/webhook
+```
+
+The endpoint validates `x-paystack-signature` and processes `charge.success`, `charge.failed`, and `bank.transfer.rejected` events.
+
 ## Admin Dashboard Features
 
 ### Product Management

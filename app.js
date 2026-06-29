@@ -12,7 +12,7 @@ import bcrypt from "bcrypt"
 import axios from "axios"
 import csurf from "csurf"
 import { body, validationResult } from "express-validator"
-import { randomUUID } from "crypto"
+import { createHmac, randomUUID, timingSafeEqual } from "crypto"
 import multer from "multer"
 
 import db from "./config/db.js"
@@ -74,6 +74,76 @@ const app = express()
 const saltRounds = 10
 const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 const dbEnabled = Boolean(process.env.DATABASE_URL || (process.env.PG_USER && process.env.PG_HOST && process.env.PG_DATABASE && process.env.PG_PASSWORD))
+const birthdayRecipientEmail = "imaginationstyle77@gmail.com"
+const birthdayMessageStartAtMs = new Date("2026-06-29T00:00:00+01:00").getTime()
+const birthdayMessageDurationMs = 72 * 60 * 60 * 1000
+const birthdayMessageText = `Happy Birthday, Mommy. ❤️
+
+
+I just want to remind you not only today but forever how incredible you are. You have spent so much of your life pouring into everyone around you that I hope, just for today, you remember to pour into yourself just as much. You are kind, strong, selfless, intelligent, beautiful, resilient, and full of so much love. You make sacrifices without asking for recognition, you carry burdens without complaining, and you love with a heart so pure that it's impossible to measure.
+
+Thank you for being the safe place I could always run to, the voice that encouraged me when I doubted myself, and the woman who taught me what unconditional love truly looks like. So much of who I am today is because of you. Your strength has carried this family through moments no one else even saw, and your love has shaped our lives in ways words could never fully capture.
+
+Life hasn't been remotely easy. You've faced storms that would have broken so many people, yet somehow you always found the strength to stand back up. Time after time, you rebuilt your life from scratch, carrying burdens no one should have to carry, and still kept moving forward. Every hardship, every disappointment, every sacrifice has shaped you into the extraordinary woman you are today.
+
+One thing that has always amazed me is the way you love. Even after everything life has thrown at you, your heart has never hardened. You love your children with a depth that reminds me of how Christ loves the church. Sometimes I genuinely wonder how someone who has been through so much can still have so much love to give. I pray that the beautiful heart of yours never changes, because it is one of the purest hearts I have ever known.
+
+You are my greatest inspiration. I don't say it often enough, but every single day I wake up with one goal in mind; to make you proud. Watching you fight through life's challenges with dignity, wisdom, and unwavering determination has taught me more than words ever could. You never stopped learning, never stopped growing, and never stopped giving everything you had to ensure your children would have a better life. Everything I hope to become is, in one way or another, inspired by you.
+
+Watching you return to buying and selling after all these years has reminded me that life has a funny way of bringing us back to where we are meant to be. Some people may see it as going back to the beginning, but I see it differently. I believe every year in between was preparing you for this moment. Every lesson, every setback, every victory, every disappointment, every closed door, and every new beginning was God shaping your character, sharpening your wisdom, and equipping you with the experience you now carry. You are not starting over, you are starting again with everything life has taught you.
+
+I truly believe your greatest achievements are still ahead of you. This business is not just another venture; I believe it is the beginning of a season where all your years of hard work, patience, and perseverance begin to speak for you. I pray that God blesses the work of your hands beyond your imagination. May every investment multiply, every good opportunity locate you, every customer become a blessing, and every door that has remained shut be opened by His favor. May He surround you with the right people, protect you from every form of loss, and crown your efforts with uncommon success.
+
+I pray that this season is different from every other one before it. May you no longer labor without seeing the rewards. May you never again know seasons where your hard work goes unnoticed or unrewarded. Instead, may you experience overflow, ease, and divine acceleration. May your name be associated with excellence, and may your business become a source of blessing not only to our family but to everyone connected to you.
+
+I hope that one day we'll sit together and laugh about these humble beginnings because they became the foundation of something far greater than we could have imagined. I pray that God exceeds every expectation you've secretly carried in your heart. May He surprise you with miracles you didn't even know to ask for, restore everything life has taken from you, and reward your faithfulness with a harvest so abundant that you'll have no choice but to say, "Only God could have done this."
+
+Mummy, your story is far from over. This is not the chapter where you struggle forever, this is the chapter where everything begins to change. I believe with all my heart that heaven is writing a beautiful ending to every difficult page you've lived through. Your latter days will truly be greater than your former days, and the tears you've cried in private will be replaced with testimonies you'll share with joy. This new beginning will not end in disappointment. It will end in fulfillment, abundance, peace, and a life that reflects the goodness and faithfulness of God. The best is not behind you, it is still on its way, and I cannot wait to watch you walk into everything God has prepared for you. ❤️
+
+As you turn 50, I see it as the beginning of the most beautiful chapter yet. Fifty is not an ending; it is a new dawn. You finally experience the peace, comfort, and happiness you've spent so many years helping others find.You deserve every beautiful thing this world has to offer. You deserve to rest without worry, to smile without pretending, and to enjoy the fruits of everything you've worked so hard for. More than anything, I pray that this next chapter is filled with answered prayers, fulfilled dreams, divine favor, and a joy so overwhelming that it makes every painful chapter worth surviving. If anyone deserves a beautiful life, it's you.
+
+I love you more than words will ever be able to express. Thank you for being my mother, my biggest blessing, and one of the greatest gifts God has ever given me. I pray you are my mother in every lifetime. Happy Birthday once again. Never forget who you are and the best is yet to come. ❤️`
+
+const paystackSupportedChannels = ["card", "bank", "ussd", "bank_transfer", "qr", "mobile_money", "eft"]
+const paystackDefaultChannels = ["card", "bank", "ussd", "bank_transfer"]
+
+function getPaystackChannels() {
+  const configured = String(process.env.PAYSTACK_CHANNELS || "")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (configured.includes("all")) {
+    return paystackSupportedChannels
+  }
+
+  const selected = (configured.length ? configured : paystackDefaultChannels).filter((channel) =>
+    paystackSupportedChannels.includes(channel)
+  )
+
+  return selected.length ? [...new Set(selected)] : paystackDefaultChannels
+}
+
+function isValidPaystackSignature(req) {
+  const signatureHeader = req.headers["x-paystack-signature"]
+  if (!signatureHeader || !process.env.PAYSTACK_SECRET_KEY || !req.rawBody) {
+    return false
+  }
+
+  const expectedSignature = createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
+    .update(req.rawBody)
+    .digest("hex")
+
+  const incoming = Buffer.from(String(signatureHeader), "hex")
+  const expected = Buffer.from(expectedSignature, "hex")
+
+  if (incoming.length !== expected.length) {
+    return false
+  }
+
+  return timingSafeEqual(incoming, expected)
+}
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: path.join(__dirname, "public", "uploads"),
@@ -103,7 +173,15 @@ app.disable("x-powered-by")
 app.use(globalLimiter)
 app.use(cookieParser(process.env.COOKIE_SECRET || "bagcartelsecret"))
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(
+  express.json({
+    verify: (req, res, buffer) => {
+      if (buffer?.length) {
+        req.rawBody = buffer.toString("utf8")
+      }
+    },
+  })
+)
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1)
 }
@@ -126,6 +204,9 @@ app.use(passport.session())
 const csrfProtection = csurf({ cookie: true })
 
 app.use((req, res, next) => {
+  if (req.method === "POST" && req.path === "/paystack/webhook") {
+    return next()
+  }
   if (req.method === "POST" && req.path === "/admin/products" && req.is("multipart/form-data")) {
     return next()
   }
@@ -581,6 +662,25 @@ async function mergeGuestCart(req) {
   }
 }
 
+function appendBirthdayMessageForUser(req, user) {
+  const email = String(user?.email || "").trim().toLowerCase()
+  if (email !== birthdayRecipientEmail) {
+    return
+  }
+  const nowMs = Date.now()
+  if (nowMs < birthdayMessageStartAtMs || nowMs >= birthdayMessageStartAtMs + birthdayMessageDurationMs) {
+    return
+  }
+
+  const existingMessages = Array.isArray(req.session.messages) ? req.session.messages : []
+  existingMessages.push({
+    type: "birthday",
+    title: "Happy Birthday, Mommy. ❤️",
+    text: birthdayMessageText,
+  })
+  req.session.messages = existingMessages
+}
+
 app.get("/", (req, res) => {
   const featured = getCatalog().slice(0, 4)
   const testimonials = [
@@ -901,6 +1001,11 @@ app.post(
           email: req.user.email,
           amount: Math.round(totalAmount * 100),
           callback_url: `${process.env.BASE_URL || "http://localhost:3000"}/paystack/callback`,
+          channels: getPaystackChannels(),
+          metadata: {
+            reservation_code: reservation.reservation_code,
+            user_id: req.user.id,
+          },
         },
         {
           headers: {
@@ -941,6 +1046,15 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     })
     const data = response.data.data
+    if (["pending", "ongoing", "queued"].includes(String(data.status || "").toLowerCase())) {
+      req.session.messages = [
+        {
+          type: "error",
+          text: "Your payment is still processing. Complete the selected payment method, then try again once Paystack confirms it.",
+        },
+      ]
+      return res.redirect("/checkout")
+    }
     if (data.status !== "success") {
       await releaseReservationByCode(db, checkout.reservationCode, { note: "Payment verification failed" })
       req.session.messages = [{ type: "error", text: "Payment was not successful." }]
@@ -1006,6 +1120,41 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
       }
     }
     next(error)
+  }
+})
+
+app.post("/paystack/webhook", async (req, res) => {
+  try {
+    if (!isValidPaystackSignature(req)) {
+      return res.status(401).json({ status: false, message: "Invalid signature" })
+    }
+
+    const event = req.body?.event
+    const payload = req.body?.data || {}
+    const reference = payload?.reference
+
+    if (event === "charge.success" && reference) {
+      await db.query(
+        `UPDATE orders
+         SET payment_status = 'Paid', updated_at = now()
+         WHERE paystack_reference = $1`,
+        [reference]
+      )
+    }
+
+    if ((event === "charge.failed" || event === "bank.transfer.rejected") && reference) {
+      await db.query(
+        `UPDATE orders
+         SET payment_status = 'Failed', updated_at = now()
+         WHERE paystack_reference = $1 AND payment_status <> 'Paid'`,
+        [reference]
+      )
+    }
+
+    return res.status(200).json({ status: true })
+  } catch (error) {
+    console.error("Paystack webhook error:", error)
+    return res.status(200).json({ status: true })
   }
 })
 
@@ -1580,6 +1729,7 @@ app.post("/login", authLimiter, (req, res, next) => {
       if (error) return next(error)
       await mergeGuestCart(req)
       req.session.messages = [{ type: "success", text: "Logged in successfully." }]
+      appendBirthdayMessageForUser(req, user)
       return res.redirect("/")
     })
   })(req, res, next)
@@ -1705,6 +1855,7 @@ if (googleEnabled) {
           if (error) return next(error)
           await mergeGuestCart(req)
           req.session.messages = [{ type: "success", text: "Logged in with Google." }]
+          appendBirthdayMessageForUser(req, user)
           res.redirect("/")
         })
       })(req, res, next)
