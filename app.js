@@ -106,6 +106,16 @@ I love you more than words will ever be able to express. Thank you for being my 
 
 const paystackSupportedChannels = ["card", "bank", "ussd", "bank_transfer", "qr", "mobile_money", "eft"]
 const paystackDefaultChannels = ["card", "bank", "ussd", "bank_transfer"]
+const lagosDeliveryAreas = [
+  { value: "ogudu", label: "Ogudu | Ojota", fee: 1000 },
+  { value: "alapere", label: "Alapere | Ketu", fee: 1500 },
+  { value: "ikeja", label: "Ikeja", fee: 3000 },
+  { value: "anthony", label: "Anthony | Maryland", fee: 3500 },
+  { value: "yaba", label: "Yaba | Surulere", fee: 4500 },
+  { value: "lekki", label: "Lekki", fee: 5000 },
+  { value: "ajah", label: "Ajah", fee: 6000 },
+]
+const lagosShippingFees = Object.fromEntries(lagosDeliveryAreas.map((area) => [area.value, area.fee]))
 
 function getPaystackChannels() {
   const configured = String(process.env.PAYSTACK_CHANNELS || "")
@@ -249,6 +259,20 @@ async function getCurrentCartItems(req) {
 async function getCartItemCount(req) {
   const cart = await getCurrentCartItems(req)
   return cart.reduce((total, item) => total + (item.quantity || 0), 0)
+}
+
+function getCartSubtotal(cart) {
+  return cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
+}
+
+function renderCheckoutPage(res, { cart, formData = {}, errors = [] }) {
+  return res.render("checkout", {
+    cart,
+    subtotal: getCartSubtotal(cart),
+    errors,
+    formData,
+    lagosDeliveryAreas,
+  })
 }
 
 function getProductCategories(product) {
@@ -922,8 +946,7 @@ app.get("/checkout", ensureAuthenticated, async (req, res, next) => {
       req.session.messages = [{ type: "error", text: "Your cart is empty." }]
       return res.redirect("/cart")
     }
-    const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-    res.render("checkout", { cart, subtotal, errors: [], formData: {} })
+    return renderCheckoutPage(res, { cart })
   } catch (error) {
     next(error)
   }
@@ -938,40 +961,42 @@ app.post(
   body("city").trim().notEmpty().withMessage("City is required."),
   body("state").trim().notEmpty().withMessage("State is required."),
   body("postalCode").trim().notEmpty().withMessage("Postal code is required."),
-  body("shippingMethod").isIn(["pickup", "lagos", "outside"]).withMessage("Select a shipping option."),
+  body("shippingMethod").trim().isIn(["pickup", "lagos", "outside"]).withMessage("Select a shipping option."),
   async (req, res, next) => {
     let reservationCodeToRelease = null
     try {
       const cart = await getCurrentCartItems(req)
       const errors = validationResult(req)
-      const formData = req.body
-      const shippingFees = { ogudu: 1000, alapere: 1500, ikeja: 3000, anthony: 3500, yaba: 3500, lekki: 5000, ajah: 6000 }
+      const shippingMethod = String(req.body.shippingMethod || "").trim().toLowerCase()
+      const lagosArea = String(req.body.lagosArea || "").trim().toLowerCase()
+      const formData = {
+        ...req.body,
+        shippingMethod,
+        lagosArea,
+      }
       if (!cart.length) {
         req.session.messages = [{ type: "error", text: "Your cart is empty." }]
         return res.redirect("/cart")
       }
       if (!errors.isEmpty()) {
-        const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-        return res.render("checkout", { cart, subtotal, errors: errors.array(), formData })
+        return renderCheckoutPage(res, { cart, errors: errors.array(), formData })
       }
-      const shippingMethod = req.body.shippingMethod
-      const lagosArea = req.body.lagosArea || ""
       let shippingFee = 0
+      let checkoutLagosArea = ""
 
       if (shippingMethod === "lagos") {
-        if (!shippingFees[lagosArea]) {
-          const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-          return res.render("checkout", {
+        if (!Object.hasOwn(lagosShippingFees, lagosArea)) {
+          return renderCheckoutPage(res, {
             cart,
-            subtotal,
             errors: [{ msg: "Please select a valid Lagos delivery area." }],
             formData,
           })
         }
-        shippingFee = shippingFees[lagosArea]
+        shippingFee = lagosShippingFees[lagosArea]
+        checkoutLagosArea = lagosArea
       }
 
-      const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
+      const subtotal = getCartSubtotal(cart)
       const totalAmount = subtotal + shippingFee
 
       const reservation = await reserveInventoryForCheckout(db, {
@@ -989,7 +1014,7 @@ app.post(
         postalCode: req.body.postalCode,
         country: req.body.country || "Nigeria",
         shippingMethod,
-        lagosArea,
+        lagosArea: checkoutLagosArea,
         shippingFee,
         totalAmount,
         reservationCode: reservation.reservation_code,

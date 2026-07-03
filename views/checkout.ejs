@@ -26,7 +26,7 @@
     <% } %>
 
     <div class="checkout-grid">
-      <form action="/checkout" method="post" class="checkout-form glass-card">
+      <form action="/checkout" method="post" class="checkout-form glass-card" id="checkoutForm">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
         <section class="checkout-section">
@@ -92,13 +92,10 @@
           <div class="lagos-area" id="lagosAreaWrap">
             <label for="lagosArea">Lagos Delivery Area</label>
             <select id="lagosArea" name="lagosArea">
-              <option value="ogudu" <%= formData.lagosArea === "ogudu" ? "selected" : "" %>>Ogudu | Ojota — ₦1,000</option>
-              <option value="alapere" <%= formData.lagosArea === "alapere" ? "selected" : "" %>>Alapere | Ketu — ₦1,500</option>
-              <option value="ikeja" <%= formData.lagosArea === "ikeja" ? "selected" : "" %>>Ikeja — ₦3,000</option>
-              <option value="anthony" <%= formData.lagosArea === "anthony" ? "selected" : "" %>>Anthony | Maryland — ₦3,500</option>
-              <option value="yaba" <%= formData.lagosArea === "yaba" ? "selected" : "" %>>Yaba | Surulere — ₦4,500</option>
-              <option value="lekki" <%= formData.lagosArea === "lekki" ? "selected" : "" %>>Lekki — ₦5,000</option>
-              <option value="ajah" <%= formData.lagosArea === "ajah" ? "selected" : "" %>>Ajah — ₦6,000</option>
+              <option value="" <%= !formData.lagosArea ? "selected" : "" %>>Select your delivery area</option>
+              <% lagosDeliveryAreas.forEach((area) => { %>
+              <option value="<%= area.value %>" <%= formData.lagosArea === area.value ? "selected" : "" %>><%= area.label %> — ₦<%= formatCurrency(area.fee) %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -111,7 +108,7 @@
           </label>
 
           <div class="outside-lagos-notice" id="outsideLagosNotice">
-            <p>📦 After payment, please send your receipt to our WhatsApp — <a href="https://wa.me/2347088069114" target="_blank" rel="noreferrer"><strong>+234 800 000 0000</strong></a> — so we can confirm your shipping fee and process your delivery.</p>
+            <p>📦 After payment, please send your receipt to our WhatsApp — <a href="https://wa.me/2347088069114" target="_blank" rel="noreferrer" class="checkout-inline-link"><strong>Chat +234 708 806 9114</strong></a> — so we can confirm your shipping fee and process your delivery.</p>
           </div>
         </section>
 
@@ -156,25 +153,21 @@
   </section>
 </main>
 
+<script type="application/json" id="lagosDeliveryFeesData"><%- JSON.stringify(Object.fromEntries(lagosDeliveryAreas.map((area) => [area.value, area.fee]))) %></script>
+
 <script>
   window.addEventListener("DOMContentLoaded", function () {
+    const checkoutForm = document.getElementById("checkoutForm");
     const shippingInputs = Array.from(document.querySelectorAll('input[name="shippingMethod"]'));
     const lagosArea = document.getElementById("lagosArea");
     const lagosWrap = document.getElementById("lagosAreaWrap");
     const outsideLagosNotice = document.getElementById("outsideLagosNotice");
     const shippingPreview = document.getElementById("shippingPreview");
     const totalPreview = document.getElementById("totalPreview");
+    const submitButton = document.querySelector(".checkout-submit");
     const subtotal = Number(document.querySelector('.checkout-page')?.getAttribute('data-checkout-subtotal') || 0);
-
-    const shippingFees = {
-      ogudu: 1000,
-      alapere: 1500,
-      ikeja: 3000,
-      anthony: 3500,
-      yaba: 4500,
-      lekki: 5000,
-      ajah: 6000,
-    };
+    const shippingFeesData = document.getElementById("lagosDeliveryFeesData");
+    const shippingFees = shippingFeesData ? JSON.parse(shippingFeesData.textContent || "{}") : {};
 
     function selectedMethod() {
       const active = shippingInputs.find((input) => input.checked);
@@ -198,6 +191,11 @@
         lagosWrap.classList.toggle("active", method === "lagos");
       }
 
+      if (lagosArea) {
+        lagosArea.disabled = method !== "lagos";
+        lagosArea.required = method === "lagos";
+      }
+
       if (outsideLagosNotice) {
         outsideLagosNotice.classList.toggle("active", method === "outside");
       }
@@ -218,6 +216,13 @@
 
     if (lagosArea) {
       lagosArea.addEventListener("change", refreshPreview);
+    }
+
+    if (checkoutForm && submitButton) {
+      checkoutForm.addEventListener("submit", function () {
+        submitButton.disabled = true;
+        submitButton.textContent = "Redirecting to Paystack...";
+      });
     }
 
     refreshPreview();
@@ -394,6 +399,25 @@
 
 .outside-lagos-notice a {
   color: #5a3e00;
+}
+
+.checkout-inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0.2rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #d9a536;
+  color: #2d6a2f;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.checkout-inline-link:hover {
+  color: #1e4e22;
 }
 
 .checkout-submit {
