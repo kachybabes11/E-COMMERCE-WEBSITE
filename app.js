@@ -1041,20 +1041,8 @@ app.post(
             reservation_code: reservation.reservation_code,
             user_id: req.user.id,
             total_amount_kobo: Math.round(totalAmount * 100),
-            checkout_context: {
-              customer_name: req.body.customerName,
-              email: req.user.email,
-              phone: req.body.phone,
-              street: req.body.street,
-              city: req.body.city,
-              state: req.body.state,
-              postal_code: req.body.postalCode,
-              country: req.body.country || "Nigeria",
-              shipping_method: shippingMethod,
-              lagos_area: checkoutLagosArea,
-              shipping_fee: shippingFee,
-              total_amount: totalAmount,
-            },
+            shipping_method: shippingMethod,
+            shipping_fee: shippingFee,
           },
         },
         {
@@ -1110,15 +1098,6 @@ app.get("/paystack/callback", async (req, res, next) => {
     const paymentStatus = normalizePaystackStatus(data.status)
     const metadata = data?.metadata || {}
 
-    let metadataCheckoutContext = metadata.checkout_context || null
-    if (typeof metadataCheckoutContext === "string") {
-      try {
-        metadataCheckoutContext = JSON.parse(metadataCheckoutContext)
-      } catch {
-        metadataCheckoutContext = null
-      }
-    }
-
     const reservationCode =
       String(checkout?.reservationCode || metadata?.reservation_code || "").trim() || null
 
@@ -1130,17 +1109,22 @@ app.get("/paystack/callback", async (req, res, next) => {
     const ownerUser = req.user || (ownerUserId ? await getUserById(ownerUserId) : null)
 
     const context = {
-      customerName: checkout?.customerName || metadataCheckoutContext?.customer_name || ownerUser?.email || "Customer",
-      email: checkout?.email || metadataCheckoutContext?.email || ownerUser?.email || "",
-      phone: checkout?.phone || metadataCheckoutContext?.phone || "",
-      street: checkout?.street || metadataCheckoutContext?.street || "",
-      city: checkout?.city || metadataCheckoutContext?.city || "",
-      state: checkout?.state || metadataCheckoutContext?.state || "",
-      postalCode: checkout?.postalCode || metadataCheckoutContext?.postal_code || "",
-      country: checkout?.country || metadataCheckoutContext?.country || "Nigeria",
-      shippingMethod: checkout?.shippingMethod || metadataCheckoutContext?.shipping_method || "pickup",
-      shippingFee: Number(checkout?.shippingFee ?? metadataCheckoutContext?.shipping_fee ?? 0),
-      totalAmount: Number(checkout?.totalAmount ?? metadataCheckoutContext?.total_amount ?? Number(data.amount || 0) / 100),
+      customerName: checkout?.customerName || ownerUser?.email || "Customer",
+      email: checkout?.email || ownerUser?.email || "",
+      phone: checkout?.phone || "",
+      street: checkout?.street || "Address pending confirmation",
+      city: checkout?.city || "",
+      state: checkout?.state || "",
+      postalCode: checkout?.postalCode || "",
+      country: checkout?.country || "Nigeria",
+      shippingMethod: checkout?.shippingMethod || String(metadata?.shipping_method || "pickup"),
+      shippingFee: Number(checkout?.shippingFee ?? metadata?.shipping_fee ?? 0),
+      totalAmount: Number(checkout?.totalAmount ?? Number(data.amount || 0) / 100),
+    }
+
+    if (!checkout) {
+      req.session.messages = [{ type: "error", text: "Checkout session expired before payment confirmation. Please sign in and contact support with your payment reference if charged." }]
+      return res.redirect(req.user ? "/orders" : "/login")
     }
 
     if (paystackPendingStatuses.has(paymentStatus)) {
@@ -1239,18 +1223,15 @@ app.get("/paystack/callback", async (req, res, next) => {
     }
     res.redirect(`/orders/${order.id}`)
   } catch (error) {
-    if (reservationCodeForRecovery) {
-      try {
-        await releaseReservationByCode(db, reservationCodeForRecovery, { note: "Payment callback error recovery" })
-      } catch (releaseError) {
-        console.error("Failed to release reservation during callback recovery:", releaseError)
-      }
-    }
+    console.error("Paystack callback error:", {
+      message: error?.message,
+      reservationCode: reservationCodeForRecovery,
+    })
     next(error)
   }
 })
 
-app.get("/paystack/pending", ensureAuthenticated, async (req, res, next) => {
+app.get("/paystack/pending", async (req, res, next) => {
   try {
     const reference = String(req.query.reference || "").trim()
     if (!reference) {
@@ -1259,10 +1240,14 @@ app.get("/paystack/pending", ensureAuthenticated, async (req, res, next) => {
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
-    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+    if (existingOrder && req.user && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
       return res.redirect(`/orders/${existingOrder.id}`)
+    }
+    if (existingOrder && !req.user) {
+      req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
+      return res.redirect("/login")
     }
 
     return res.render("paystack-pending", { reference })
@@ -1271,7 +1256,7 @@ app.get("/paystack/pending", ensureAuthenticated, async (req, res, next) => {
   }
 })
 
-app.get("/paystack/payment-status", ensureAuthenticated, async (req, res) => {
+app.get("/paystack/payment-status", async (req, res) => {
   try {
     const reference = String(req.query.reference || "").trim()
     if (!reference) {
@@ -1279,11 +1264,11 @@ app.get("/paystack/payment-status", ensureAuthenticated, async (req, res) => {
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
-    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+    if (existingOrder) {
       return res.json({
         ok: true,
         status: "success",
-        redirectTo: `/orders/${existingOrder.id}`,
+        redirectTo: req.user ? `/orders/${existingOrder.id}` : "/login",
       })
     }
 
