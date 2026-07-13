@@ -107,8 +107,9 @@ As you turn 50, I see it as the beginning of the most beautiful chapter yet. Fif
 I love you more than words will ever be able to express. Thank you for being my mother, my biggest blessing, and one of the greatest gifts God has ever given me. I pray you are my mother in every lifetime. Happy Birthday once again. Never forget who you are and the best is yet to come. ❤️`
 
 const paystackSupportedChannels = ["card", "bank", "ussd", "bank_transfer", "qr", "mobile_money", "eft"]
-const paystackDefaultChannels = ["card", "bank", "ussd", "bank_transfer"]
-const paystackPendingStatuses = new Set(["pending", "ongoing", "queued"])
+const paystackDefaultChannels = [...paystackSupportedChannels]
+const paystackPendingStatuses = new Set(["pending", "ongoing", "queued", "processing"])
+const paystackFailureStatuses = new Set(["failed", "abandoned", "reversed", "cancelled"])
 const lagosDeliveryAreas = [
   { value: "ogudu", label: "Ogudu | Ojota", fee: 1000 },
   { value: "alapere", label: "Alapere | Ketu", fee: 1500 },
@@ -1013,6 +1014,8 @@ app.post(
       reservationCodeToRelease = reservation.reservation_code
 
       req.session.checkout = {
+        userId: req.user.id,
+        email: req.user.email,
         customerName: req.body.customerName,
         phone: req.body.phone,
         street: req.body.street,
@@ -1037,6 +1040,21 @@ app.post(
           metadata: {
             reservation_code: reservation.reservation_code,
             user_id: req.user.id,
+            total_amount_kobo: Math.round(totalAmount * 100),
+            checkout_context: {
+              customer_name: req.body.customerName,
+              email: req.user.email,
+              phone: req.body.phone,
+              street: req.body.street,
+              city: req.body.city,
+              state: req.body.state,
+              postal_code: req.body.postalCode,
+              country: req.body.country || "Nigeria",
+              shipping_method: shippingMethod,
+              lagos_area: checkoutLagosArea,
+              shipping_fee: shippingFee,
+              total_amount: totalAmount,
+            },
           },
         },
         {
@@ -1064,7 +1082,7 @@ app.post(
   }
 )
 
-app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
+app.get("/paystack/callback", async (req, res, next) => {
   let reservationCodeForRecovery = null
   try {
     const reference = String(req.query.reference || "").trim()
@@ -1074,79 +1092,114 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
-    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+    if (existingOrder && req.user && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment already confirmed for this order." }]
       return res.redirect(`/orders/${existingOrder.id}`)
     }
-
-    const checkout = req.session.checkout
-    if (!checkout) {
-      req.session.messages = [{ type: "error", text: "Checkout session expired. Please start checkout again." }]
-      return res.redirect("/checkout")
+    if (existingOrder && !req.user) {
+      req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
+      return res.redirect("/login")
     }
 
-    reservationCodeForRecovery = checkout.reservationCode || null
+    const checkout = req.session.checkout
     const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     })
     const data = response.data.data
     const paymentStatus = normalizePaystackStatus(data.status)
+    const metadata = data?.metadata || {}
+
+    let metadataCheckoutContext = metadata.checkout_context || null
+    if (typeof metadataCheckoutContext === "string") {
+      try {
+        metadataCheckoutContext = JSON.parse(metadataCheckoutContext)
+      } catch {
+        metadataCheckoutContext = null
+      }
+    }
+
+    const reservationCode =
+      String(checkout?.reservationCode || metadata?.reservation_code || "").trim() || null
+
+    reservationCodeForRecovery = reservationCode
+
+    const ownerUserId = Number(
+      checkout?.userId || metadata?.user_id || req.user?.id || 0
+    )
+    const ownerUser = req.user || (ownerUserId ? await getUserById(ownerUserId) : null)
+
+    const context = {
+      customerName: checkout?.customerName || metadataCheckoutContext?.customer_name || ownerUser?.email || "Customer",
+      email: checkout?.email || metadataCheckoutContext?.email || ownerUser?.email || "",
+      phone: checkout?.phone || metadataCheckoutContext?.phone || "",
+      street: checkout?.street || metadataCheckoutContext?.street || "",
+      city: checkout?.city || metadataCheckoutContext?.city || "",
+      state: checkout?.state || metadataCheckoutContext?.state || "",
+      postalCode: checkout?.postalCode || metadataCheckoutContext?.postal_code || "",
+      country: checkout?.country || metadataCheckoutContext?.country || "Nigeria",
+      shippingMethod: checkout?.shippingMethod || metadataCheckoutContext?.shipping_method || "pickup",
+      shippingFee: Number(checkout?.shippingFee ?? metadataCheckoutContext?.shipping_fee ?? 0),
+      totalAmount: Number(checkout?.totalAmount ?? metadataCheckoutContext?.total_amount ?? Number(data.amount || 0) / 100),
+    }
 
     if (paystackPendingStatuses.has(paymentStatus)) {
       return res.redirect(`/paystack/pending?reference=${encodeURIComponent(reference)}`)
     }
 
     if (paymentStatus !== "success") {
-      await releaseReservationByCode(db, checkout.reservationCode, { note: "Payment verification failed" })
-      req.session.messages = [{ type: "error", text: "Payment was not successful." }]
+      if (paystackFailureStatuses.has(paymentStatus)) {
+        if (reservationCode) {
+          await releaseReservationByCode(db, reservationCode, { note: `Payment verification failed (${paymentStatus})` })
+        }
+        req.session.messages = [{ type: "error", text: "Payment was not successful." }]
+        return res.redirect("/checkout")
+      }
+
+      return res.redirect(`/paystack/pending?reference=${encodeURIComponent(reference)}`)
+    }
+
+    if (!reservationCode) {
+      req.session.messages = [{ type: "error", text: "Unable to complete order: reservation information is missing." }]
       return res.redirect("/checkout")
     }
 
-    const cart = await getCurrentCartItems(req)
-    if (!cart.length) {
-      const orderByReservation = await getOrderByReservationCode(db, checkout.reservationCode)
-      if (orderByReservation && (orderByReservation.user_id === req.user.id || req.user.is_admin)) {
-        req.session.checkout = null
-        req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
-        return res.redirect(`/orders/${orderByReservation.id}`)
-      }
-      req.session.messages = [{ type: "error", text: "Your cart is empty." }]
-      return res.redirect("/cart")
-    }
-
-    const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-    const totalAmount = subtotal + checkout.shippingFee
-    if (Math.round(totalAmount * 100) !== Number(data.amount)) {
-      await releaseReservationByCode(db, checkout.reservationCode, { note: "Payment amount mismatch" })
+    const expectedAmountKobo = Number(metadata?.total_amount_kobo || Math.round(context.totalAmount * 100))
+    if (expectedAmountKobo && Number(data.amount) !== expectedAmountKobo) {
+      await releaseReservationByCode(db, reservationCode, { note: "Payment amount mismatch" })
       req.session.messages = [{ type: "error", text: "Payment amount does not match order total." }]
       return res.redirect("/checkout")
+    }
+
+    if (!ownerUser?.id) {
+      req.session.messages = [{ type: "error", text: "Payment confirmed, but account could not be resolved. Contact support." }]
+      return res.redirect("/login")
     }
 
     let order
     try {
       order = await commitReservation(db, {
-        reservationCode: checkout.reservationCode,
+        reservationCode,
         paystackReference: data.reference,
         createOrderFn: async (client, payload) =>
           createOrder(client, {
-            userId: req.user.id,
-            customerName: checkout.customerName,
-            email: req.user.email,
-            phone: checkout.phone,
+            userId: ownerUser.id,
+            customerName: context.customerName,
+            email: context.email,
+            phone: context.phone,
             shippingAddress: {
-              street: checkout.street,
-              city: checkout.city,
-              state: checkout.state,
-              postalCode: checkout.postalCode,
-              country: checkout.country,
+              street: context.street,
+              city: context.city,
+              state: context.state,
+              postalCode: context.postalCode,
+              country: context.country,
             },
-            shippingMethod: checkout.shippingMethod,
-            shippingFee: checkout.shippingFee,
+            shippingMethod: context.shippingMethod,
+            shippingFee: context.shippingFee,
             items: payload.orderItems,
             paymentStatus: "Paid",
             orderStatus: "Processing",
-            totalAmount,
+            totalAmount: context.totalAmount,
             paystackReference: data.reference,
             reservationCode: payload.reservationCode,
           }),
@@ -1154,19 +1207,24 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
     } catch (commitError) {
       const existingAfterCommit =
         (await getOrderByPaystackReference(db, data.reference)) ||
-        (await getOrderByReservationCode(db, checkout.reservationCode))
+        (await getOrderByReservationCode(db, reservationCode))
 
-      if (existingAfterCommit && (existingAfterCommit.user_id === req.user.id || req.user.is_admin)) {
+      if (existingAfterCommit && req.user && (existingAfterCommit.user_id === req.user.id || req.user.is_admin)) {
         req.session.checkout = null
         req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
         return res.redirect(`/orders/${existingAfterCommit.id}`)
+      }
+      if (existingAfterCommit && !req.user) {
+        req.session.checkout = null
+        req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
+        return res.redirect("/login")
       }
 
       throw commitError
     }
 
     if (dbEnabled) {
-      await clearCart(db, { userId: req.user.id })
+      await clearCart(db, { userId: ownerUser.id })
     } else {
       req.session.cart = []
     }
@@ -1175,6 +1233,10 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
     const orderDetail = await getOrderDetails(db, order.id)
     await sendOrderConfirmationEmail(order, orderDetail.items)
     await sendNewOrderNotificationEmail(order, orderDetail.items)
+    if (!req.user) {
+      req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
+      return res.redirect("/login")
+    }
     res.redirect(`/orders/${order.id}`)
   } catch (error) {
     if (reservationCodeForRecovery) {
@@ -1201,11 +1263,6 @@ app.get("/paystack/pending", ensureAuthenticated, async (req, res, next) => {
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
       return res.redirect(`/orders/${existingOrder.id}`)
-    }
-
-    if (!req.session.checkout) {
-      req.session.messages = [{ type: "error", text: "Checkout session expired. Please start checkout again." }]
-      return res.redirect("/checkout")
     }
 
     return res.render("paystack-pending", { reference })
@@ -1243,9 +1300,17 @@ app.get("/paystack/payment-status", ensureAuthenticated, async (req, res) => {
       })
     }
 
+    if (paystackFailureStatuses.has(paymentStatus)) {
+      return res.json({
+        ok: true,
+        status: paymentStatus,
+        redirectTo: `/paystack/callback?reference=${encodeURIComponent(reference)}`,
+      })
+    }
+
     return res.json({
       ok: true,
-      status: paymentStatus,
+      status: paystackPendingStatuses.has(paymentStatus) ? paymentStatus : "pending",
       redirectTo: null,
     })
   } catch (error) {
