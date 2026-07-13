@@ -91,6 +91,7 @@ export async function ensureDatabase() {
       reservation_code TEXT NOT NULL UNIQUE,
       user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
       status TEXT NOT NULL DEFAULT 'pending',
+      checkout_context JSONB,
       expires_at TIMESTAMPTZ NOT NULL,
       created_at TIMESTAMPTZ DEFAULT now(),
       committed_at TIMESTAMPTZ
@@ -183,6 +184,8 @@ export async function ensureDatabase() {
     CREATE INDEX IF NOT EXISTS orders_created_idx ON orders (created_at DESC);
     CREATE INDEX IF NOT EXISTS orders_status_idx ON orders (order_status, payment_status);
   `)
+
+  await db.query(`ALTER TABLE inventory_reservations ADD COLUMN IF NOT EXISTS checkout_context JSONB`)
 
   await db.query(`
     UPDATE users

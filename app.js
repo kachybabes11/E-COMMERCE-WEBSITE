@@ -30,6 +30,7 @@ import {
   reserveInventoryForCheckout,
   releaseReservationByCode,
   findLatestPendingReservationCodeByUser,
+  getReservationByCode,
   commitReservation,
 } from "./services/inventoryService.js"
 import {
@@ -172,6 +173,97 @@ function logPaystackFlow(stage, details = {}) {
       ...details,
     })
   )
+}
+
+async function finalizeSuccessfulPaystackPayment({
+  reference,
+  reservationCode,
+  ownerUser,
+  context,
+}) {
+  let order
+
+  try {
+    logPaystackFlow("finalize.commit_attempt", {
+      reference,
+      reservationCode,
+      ownerUserId: ownerUser.id,
+      totalAmount: context.totalAmount,
+    })
+
+    order = await commitReservation(db, {
+      reservationCode,
+      paystackReference: reference,
+      createOrderFn: async (client, payload) =>
+        createOrder(client, {
+          userId: ownerUser.id,
+          customerName: context.customerName,
+          email: context.email,
+          phone: context.phone,
+          shippingAddress: {
+            street: context.street,
+            city: context.city,
+            state: context.state,
+            postalCode: context.postalCode,
+            country: context.country,
+          },
+          shippingMethod: context.shippingMethod,
+          shippingFee: context.shippingFee,
+          items: payload.orderItems,
+          paymentStatus: "Paid",
+          orderStatus: "Processing",
+          totalAmount: context.totalAmount,
+          paystackReference: reference,
+          reservationCode: payload.reservationCode,
+        }),
+    })
+
+    logPaystackFlow("finalize.commit_success", {
+      reference,
+      reservationCode,
+      orderId: order.id,
+      ownerUserId: ownerUser.id,
+    })
+  } catch (commitError) {
+    logPaystackFlow("finalize.commit_error", {
+      reference,
+      reservationCode,
+      ownerUserId: ownerUser?.id || null,
+      message: commitError?.message,
+    })
+
+    const existingAfterCommit =
+      (await getOrderByPaystackReference(db, reference)) ||
+      (await getOrderByReservationCode(db, reservationCode))
+
+    if (existingAfterCommit) {
+      logPaystackFlow("finalize.commit_error.recovered_existing", {
+        reference,
+        reservationCode,
+        orderId: existingAfterCommit.id,
+      })
+      return existingAfterCommit
+    }
+
+    throw commitError
+  }
+
+  if (dbEnabled) {
+    await clearCart(db, { userId: ownerUser.id })
+  }
+
+  const orderDetail = await getOrderDetails(db, order.id)
+  await sendOrderConfirmationEmail(order, orderDetail.items)
+  await sendNewOrderNotificationEmail(order, orderDetail.items)
+
+  logPaystackFlow("finalize.notifications_sent", {
+    reference,
+    reservationCode,
+    orderId: order.id,
+    ownerUserId: ownerUser.id,
+  })
+
+  return order
 }
 
 const upload = multer({
@@ -1018,17 +1110,9 @@ app.post(
 
       const subtotal = getCartSubtotal(cart)
       const totalAmount = subtotal + shippingFee
-
-      const reservation = await reserveInventoryForCheckout(db, {
-        userId: req.user.id,
-        cartItems: cart,
-      })
-      reservationCodeToRelease = reservation.reservation_code
-
-      req.session.checkout = {
-        userId: req.user.id,
-        email: req.user.email,
+      const checkoutContext = {
         customerName: req.body.customerName,
+        email: req.user.email,
         phone: req.body.phone,
         street: req.body.street,
         city: req.body.city,
@@ -1039,6 +1123,19 @@ app.post(
         lagosArea: checkoutLagosArea,
         shippingFee,
         totalAmount,
+      }
+
+      const reservation = await reserveInventoryForCheckout(db, {
+        userId: req.user.id,
+        cartItems: cart,
+        checkoutContext,
+      })
+      reservationCodeToRelease = reservation.reservation_code
+
+      req.session.checkout = {
+        userId: req.user.id,
+        email: req.user.email,
+        ...checkoutContext,
         reservationCode: reservation.reservation_code,
         reservationExpiresAt: reservation.expires_at,
       }
@@ -1169,6 +1266,23 @@ app.get("/paystack/callback", async (req, res, next) => {
     }
 
     reservationCodeForRecovery = reservationCode
+    const reservationRecord = reservationCode ? await getReservationByCode(db, reservationCode) : null
+    const reservationCheckoutContext = reservationRecord?.checkout_context || null
+
+    const context = {
+      customerName: checkout?.customerName || reservationCheckoutContext?.customerName || ownerUser?.email || "Customer",
+      email: checkout?.email || reservationCheckoutContext?.email || ownerUser?.email || "",
+      phone: checkout?.phone || reservationCheckoutContext?.phone || "",
+      street: checkout?.street || reservationCheckoutContext?.street || "Address pending confirmation",
+      city: checkout?.city || reservationCheckoutContext?.city || "",
+      state: checkout?.state || reservationCheckoutContext?.state || "",
+      postalCode: checkout?.postalCode || reservationCheckoutContext?.postalCode || "",
+      country: checkout?.country || reservationCheckoutContext?.country || "Nigeria",
+      shippingMethod: checkout?.shippingMethod || reservationCheckoutContext?.shippingMethod || String(metadata?.shipping_method || "pickup"),
+      shippingFee: Number(checkout?.shippingFee ?? reservationCheckoutContext?.shippingFee ?? metadata?.shipping_fee ?? 0),
+      totalAmount: Number(checkout?.totalAmount ?? reservationCheckoutContext?.totalAmount ?? Number(data.amount || 0) / 100),
+    }
+
     logPaystackFlow("callback.context_resolved", {
       reference,
       reservationCode,
@@ -1178,20 +1292,6 @@ app.get("/paystack/callback", async (req, res, next) => {
       contextShippingFee: context.shippingFee,
       contextTotalAmount: context.totalAmount,
     })
-
-    const context = {
-      customerName: checkout?.customerName || ownerUser?.email || "Customer",
-      email: checkout?.email || ownerUser?.email || "",
-      phone: checkout?.phone || "",
-      street: checkout?.street || "Address pending confirmation",
-      city: checkout?.city || "",
-      state: checkout?.state || "",
-      postalCode: checkout?.postalCode || "",
-      country: checkout?.country || "Nigeria",
-      shippingMethod: checkout?.shippingMethod || String(metadata?.shipping_method || "pickup"),
-      shippingFee: Number(checkout?.shippingFee ?? metadata?.shipping_fee ?? 0),
-      totalAmount: Number(checkout?.totalAmount ?? Number(data.amount || 0) / 100),
-    }
 
     if (paystackPendingStatuses.has(paymentStatus)) {
       logPaystackFlow("callback.pending_status", {
@@ -1255,102 +1355,15 @@ app.get("/paystack/callback", async (req, res, next) => {
       return res.redirect("/login")
     }
 
-    let order
-    try {
-      logPaystackFlow("callback.commit_attempt", {
-        reference,
-        reservationCode,
-        ownerUserId: ownerUser.id,
-        totalAmount: context.totalAmount,
-      })
-      order = await commitReservation(db, {
-        reservationCode,
-        paystackReference: data.reference,
-        createOrderFn: async (client, payload) =>
-          createOrder(client, {
-            userId: ownerUser.id,
-            customerName: context.customerName,
-            email: context.email,
-            phone: context.phone,
-            shippingAddress: {
-              street: context.street,
-              city: context.city,
-              state: context.state,
-              postalCode: context.postalCode,
-              country: context.country,
-            },
-            shippingMethod: context.shippingMethod,
-            shippingFee: context.shippingFee,
-            items: payload.orderItems,
-            paymentStatus: "Paid",
-            orderStatus: "Processing",
-            totalAmount: context.totalAmount,
-            paystackReference: data.reference,
-            reservationCode: payload.reservationCode,
-          }),
-      })
-      logPaystackFlow("callback.commit_success", {
-        reference,
-        reservationCode,
-        orderId: order.id,
-        ownerUserId: ownerUser.id,
-      })
-    } catch (commitError) {
-      logPaystackFlow("callback.commit_error", {
-        reference,
-        reservationCode,
-        ownerUserId: ownerUser?.id || null,
-        message: commitError?.message,
-      })
-      const existingAfterCommit =
-        (await getOrderByPaystackReference(db, data.reference)) ||
-        (await getOrderByReservationCode(db, reservationCode))
-
-      if (existingAfterCommit && req.user && (existingAfterCommit.user_id === req.user.id || req.user.is_admin)) {
-        logPaystackFlow("callback.commit_error.recovered_existing_authenticated", {
-          reference,
-          reservationCode,
-          orderId: existingAfterCommit.id,
-        })
-        req.session.checkout = null
-        req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
-        return res.redirect(`/orders/${existingAfterCommit.id}`)
-      }
-      if (existingAfterCommit && !req.user) {
-        logPaystackFlow("callback.commit_error.recovered_existing_unauthenticated", {
-          reference,
-          reservationCode,
-          orderId: existingAfterCommit.id,
-        })
-        req.session.checkout = null
-        req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
-        return res.redirect("/login")
-      }
-
-      throw commitError
-    }
-
-    if (dbEnabled) {
-      await clearCart(db, { userId: ownerUser.id })
-    } else {
-      req.session.cart = []
-    }
-    logPaystackFlow("callback.cart_cleared", {
-      reference,
+    const order = await finalizeSuccessfulPaystackPayment({
+      reference: data.reference,
       reservationCode,
-      ownerUserId: ownerUser.id,
-      dbEnabled,
+      ownerUser,
+      context,
     })
+
     req.session.checkout = null
     req.session.messages = [{ type: "success", text: "Order completed successfully." }]
-    const orderDetail = await getOrderDetails(db, order.id)
-    await sendOrderConfirmationEmail(order, orderDetail.items)
-    await sendNewOrderNotificationEmail(order, orderDetail.items)
-    logPaystackFlow("callback.notifications_sent", {
-      reference,
-      reservationCode,
-      orderId: order.id,
-    })
     if (!req.user) {
       logPaystackFlow("callback.redirect_login_after_success", {
         reference,
@@ -1524,15 +1537,58 @@ app.post("/paystack/webhook", async (req, res) => {
     })
 
     if (event === "charge.success" && reference) {
-      await db.query(
-        `UPDATE orders
-         SET payment_status = 'Paid', updated_at = now()
-         WHERE paystack_reference = $1`,
-        [reference]
-      )
-      logPaystackFlow("webhook.charge_success.updated", {
-        reference,
-      })
+      const existingOrder = await getOrderByPaystackReference(db, reference)
+      if (!existingOrder) {
+        const reservationCode = String(payload?.metadata?.reservation_code || "").trim() || null
+        const reservationRecord = reservationCode ? await getReservationByCode(db, reservationCode) : null
+        const reservationCheckoutContext = reservationRecord?.checkout_context || null
+        const ownerUserId = Number(payload?.metadata?.user_id || reservationRecord?.user_id || 0)
+        const ownerUser = ownerUserId ? await getUserById(ownerUserId) : null
+
+        if (reservationCode && ownerUser && reservationCheckoutContext) {
+          await finalizeSuccessfulPaystackPayment({
+            reference,
+            reservationCode,
+            ownerUser,
+            context: {
+              customerName: reservationCheckoutContext.customerName,
+              email: reservationCheckoutContext.email || ownerUser.email,
+              phone: reservationCheckoutContext.phone,
+              street: reservationCheckoutContext.street,
+              city: reservationCheckoutContext.city,
+              state: reservationCheckoutContext.state,
+              postalCode: reservationCheckoutContext.postalCode,
+              country: reservationCheckoutContext.country,
+              shippingMethod: reservationCheckoutContext.shippingMethod,
+              shippingFee: Number(reservationCheckoutContext.shippingFee || 0),
+              totalAmount: Number(reservationCheckoutContext.totalAmount || Number(payload?.amount || 0) / 100),
+            },
+          })
+          logPaystackFlow("webhook.charge_success.finalized", {
+            reference,
+            reservationCode,
+            ownerUserId,
+          })
+        } else {
+          logPaystackFlow("webhook.charge_success.missing_finalization_context", {
+            reference,
+            reservationCode,
+            ownerUserId,
+            hasCheckoutContext: Boolean(reservationCheckoutContext),
+          })
+        }
+      } else {
+        await db.query(
+          `UPDATE orders
+           SET payment_status = 'Paid', updated_at = now()
+           WHERE paystack_reference = $1`,
+          [reference]
+        )
+        logPaystackFlow("webhook.charge_success.updated", {
+          reference,
+          orderId: existingOrder.id,
+        })
+      }
     }
 
     if ((event === "charge.failed" || event === "bank.transfer.rejected") && reference) {

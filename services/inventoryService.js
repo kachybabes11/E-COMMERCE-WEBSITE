@@ -84,7 +84,7 @@ export async function releaseExpiredReservations(db) {
   }
 }
 
-export async function reserveInventoryForCheckout(db, { userId, cartItems }) {
+export async function reserveInventoryForCheckout(db, { userId, cartItems, checkoutContext = null }) {
   const client = await db.connect()
   const reservationCode = randomUUID()
 
@@ -92,10 +92,10 @@ export async function reserveInventoryForCheckout(db, { userId, cartItems }) {
     await client.query("BEGIN")
 
     const reservationInsert = await client.query(
-      `INSERT INTO inventory_reservations (reservation_code, user_id, status, expires_at)
-       VALUES ($1, $2, 'pending', now() + ($3::text || ' minutes')::interval)
+      `INSERT INTO inventory_reservations (reservation_code, user_id, status, expires_at, checkout_context)
+       VALUES ($1, $2, 'pending', now() + ($3::text || ' minutes')::interval, $4::jsonb)
        RETURNING id, reservation_code, expires_at`,
-      [reservationCode, userId || null, String(RESERVATION_TTL_MINUTES)]
+      [reservationCode, userId || null, String(RESERVATION_TTL_MINUTES), checkoutContext ? JSON.stringify(checkoutContext) : null]
     )
     const reservation = reservationInsert.rows[0]
 
@@ -223,6 +223,20 @@ export async function findLatestPendingReservationCodeByUser(db, userId) {
   )
 
   return result.rows[0]?.reservation_code || null
+}
+
+export async function getReservationByCode(db, reservationCode) {
+  if (!reservationCode) return null
+
+  const result = await db.query(
+    `SELECT id, reservation_code, user_id, status, expires_at, checkout_context, committed_at, created_at
+     FROM inventory_reservations
+     WHERE reservation_code = $1
+     LIMIT 1`,
+    [reservationCode]
+  )
+
+  return result.rows[0] || null
 }
 
 export async function commitReservation(db, { reservationCode, paystackReference, createOrderFn }) {
