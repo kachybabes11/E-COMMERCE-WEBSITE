@@ -163,6 +163,17 @@ function normalizePaystackStatus(status) {
   return String(status || "").trim().toLowerCase()
 }
 
+function logPaystackFlow(stage, details = {}) {
+  console.log(
+    "[paystack-flow]",
+    JSON.stringify({
+      stage,
+      at: new Date().toISOString(),
+      ...details,
+    })
+  )
+}
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: path.join(__dirname, "public", "uploads"),
@@ -1053,8 +1064,25 @@ app.post(
           },
         }
       )
+      logPaystackFlow("checkout.initialize.success", {
+        userId: req.user.id,
+        email: req.user.email,
+        reservationCode: reservation.reservation_code,
+        shippingMethod,
+        shippingFee,
+        totalAmount,
+        paystackChannels: getPaystackChannels(),
+        authorizationUrlPresent: Boolean(response?.data?.data?.authorization_url),
+      })
       res.redirect(response.data.data.authorization_url)
     } catch (error) {
+      logPaystackFlow("checkout.initialize.error", {
+        userId: req.user?.id || null,
+        reservationCode: reservationCodeToRelease,
+        message: error?.message,
+        responseStatus: error?.response?.status || null,
+        responseBody: error?.response?.data || null,
+      })
       if (reservationCodeToRelease) {
         try {
           await releaseReservationByCode(db, reservationCodeToRelease, { note: "Checkout initialization failed" })
@@ -1075,18 +1103,35 @@ app.get("/paystack/callback", async (req, res, next) => {
   let reservationCodeForRecovery = null
   try {
     const reference = String(req.query.reference || "").trim()
+    logPaystackFlow("callback.enter", {
+      reference,
+      sessionCheckoutPresent: Boolean(req.session.checkout),
+      sessionUserId: req.user?.id || null,
+    })
     if (!reference) {
+      logPaystackFlow("callback.missing_reference", {
+        sessionUserId: req.user?.id || null,
+      })
       req.session.messages = [{ type: "error", text: "Unable to complete payment. Missing payment reference." }]
       return res.redirect("/checkout")
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
     if (existingOrder && req.user && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+      logPaystackFlow("callback.existing_order.authenticated", {
+        reference,
+        orderId: existingOrder.id,
+        sessionUserId: req.user.id,
+      })
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment already confirmed for this order." }]
       return res.redirect(`/orders/${existingOrder.id}`)
     }
     if (existingOrder && !req.user) {
+      logPaystackFlow("callback.existing_order.unauthenticated", {
+        reference,
+        orderId: existingOrder.id,
+      })
       req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
       return res.redirect("/login")
     }
@@ -1098,6 +1143,18 @@ app.get("/paystack/callback", async (req, res, next) => {
     const data = response.data.data
     const paymentStatus = normalizePaystackStatus(data.status)
     const metadata = data?.metadata || {}
+    logPaystackFlow("callback.verify_response", {
+      reference,
+      paystackStatus: paymentStatus,
+      amountKobo: Number(data.amount || 0),
+      metadataReservationCode: metadata?.reservation_code || null,
+      metadataUserId: metadata?.user_id || null,
+      metadataShippingMethod: metadata?.shipping_method || null,
+      metadataShippingFee: metadata?.shipping_fee ?? null,
+      gatewayResponse: data?.gateway_response || null,
+      paidAt: data?.paid_at || null,
+      channel: data?.channel || null,
+    })
 
     const ownerUserId = Number(
       checkout?.userId || metadata?.user_id || req.user?.id || 0
@@ -1112,6 +1169,15 @@ app.get("/paystack/callback", async (req, res, next) => {
     }
 
     reservationCodeForRecovery = reservationCode
+    logPaystackFlow("callback.context_resolved", {
+      reference,
+      reservationCode,
+      ownerUserId: ownerUser?.id || null,
+      sessionCheckoutPresent: Boolean(checkout),
+      contextShippingMethod: context.shippingMethod,
+      contextShippingFee: context.shippingFee,
+      contextTotalAmount: context.totalAmount,
+    })
 
     const context = {
       customerName: checkout?.customerName || ownerUser?.email || "Customer",
@@ -1128,11 +1194,21 @@ app.get("/paystack/callback", async (req, res, next) => {
     }
 
     if (paystackPendingStatuses.has(paymentStatus)) {
+      logPaystackFlow("callback.pending_status", {
+        reference,
+        reservationCode,
+        paystackStatus: paymentStatus,
+      })
       return res.redirect(`/paystack/pending?reference=${encodeURIComponent(reference)}`)
     }
 
     if (paymentStatus !== "success") {
       if (paystackFailureStatuses.has(paymentStatus)) {
+        logPaystackFlow("callback.failure_status", {
+          reference,
+          reservationCode,
+          paystackStatus: paymentStatus,
+        })
         if (reservationCode) {
           await releaseReservationByCode(db, reservationCode, { note: `Payment verification failed (${paymentStatus})` })
         }
@@ -1140,27 +1216,53 @@ app.get("/paystack/callback", async (req, res, next) => {
         return res.redirect("/checkout")
       }
 
+      logPaystackFlow("callback.unknown_non_success_status", {
+        reference,
+        reservationCode,
+        paystackStatus: paymentStatus,
+      })
       return res.redirect(`/paystack/pending?reference=${encodeURIComponent(reference)}`)
     }
 
     if (!reservationCode) {
+      logPaystackFlow("callback.missing_reservation", {
+        reference,
+        ownerUserId: ownerUser?.id || null,
+      })
       req.session.messages = [{ type: "error", text: "Payment was received, but order confirmation is delayed. Please check your orders shortly." }]
       return res.redirect(req.user ? "/orders" : "/login")
     }
 
     const expectedAmountKobo = Number(metadata?.total_amount_kobo || Math.round(context.totalAmount * 100))
     if (expectedAmountKobo && Number(data.amount) !== expectedAmountKobo) {
+      logPaystackFlow("callback.amount_mismatch", {
+        reference,
+        reservationCode,
+        expectedAmountKobo,
+        actualAmountKobo: Number(data.amount),
+      })
       req.session.messages = [{ type: "error", text: "Payment was received but amount verification is pending. Please contact support with your payment reference." }]
       return res.redirect(req.user ? "/orders" : "/login")
     }
 
     if (!ownerUser?.id) {
+      logPaystackFlow("callback.missing_owner", {
+        reference,
+        reservationCode,
+        metadataUserId: metadata?.user_id || null,
+      })
       req.session.messages = [{ type: "error", text: "Payment confirmed, but account could not be resolved. Contact support." }]
       return res.redirect("/login")
     }
 
     let order
     try {
+      logPaystackFlow("callback.commit_attempt", {
+        reference,
+        reservationCode,
+        ownerUserId: ownerUser.id,
+        totalAmount: context.totalAmount,
+      })
       order = await commitReservation(db, {
         reservationCode,
         paystackReference: data.reference,
@@ -1187,17 +1289,39 @@ app.get("/paystack/callback", async (req, res, next) => {
             reservationCode: payload.reservationCode,
           }),
       })
+      logPaystackFlow("callback.commit_success", {
+        reference,
+        reservationCode,
+        orderId: order.id,
+        ownerUserId: ownerUser.id,
+      })
     } catch (commitError) {
+      logPaystackFlow("callback.commit_error", {
+        reference,
+        reservationCode,
+        ownerUserId: ownerUser?.id || null,
+        message: commitError?.message,
+      })
       const existingAfterCommit =
         (await getOrderByPaystackReference(db, data.reference)) ||
         (await getOrderByReservationCode(db, reservationCode))
 
       if (existingAfterCommit && req.user && (existingAfterCommit.user_id === req.user.id || req.user.is_admin)) {
+        logPaystackFlow("callback.commit_error.recovered_existing_authenticated", {
+          reference,
+          reservationCode,
+          orderId: existingAfterCommit.id,
+        })
         req.session.checkout = null
         req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
         return res.redirect(`/orders/${existingAfterCommit.id}`)
       }
       if (existingAfterCommit && !req.user) {
+        logPaystackFlow("callback.commit_error.recovered_existing_unauthenticated", {
+          reference,
+          reservationCode,
+          orderId: existingAfterCommit.id,
+        })
         req.session.checkout = null
         req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
         return res.redirect("/login")
@@ -1211,20 +1335,43 @@ app.get("/paystack/callback", async (req, res, next) => {
     } else {
       req.session.cart = []
     }
+    logPaystackFlow("callback.cart_cleared", {
+      reference,
+      reservationCode,
+      ownerUserId: ownerUser.id,
+      dbEnabled,
+    })
     req.session.checkout = null
     req.session.messages = [{ type: "success", text: "Order completed successfully." }]
     const orderDetail = await getOrderDetails(db, order.id)
     await sendOrderConfirmationEmail(order, orderDetail.items)
     await sendNewOrderNotificationEmail(order, orderDetail.items)
+    logPaystackFlow("callback.notifications_sent", {
+      reference,
+      reservationCode,
+      orderId: order.id,
+    })
     if (!req.user) {
+      logPaystackFlow("callback.redirect_login_after_success", {
+        reference,
+        reservationCode,
+        orderId: order.id,
+      })
       req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
       return res.redirect("/login")
     }
+    logPaystackFlow("callback.redirect_order_success", {
+      reference,
+      reservationCode,
+      orderId: order.id,
+      ownerUserId: ownerUser.id,
+    })
     res.redirect(`/orders/${order.id}`)
   } catch (error) {
-    console.error("Paystack callback error:", {
+    logPaystackFlow("callback.unhandled_error", {
       message: error?.message,
       reservationCode: reservationCodeForRecovery,
+      stack: error?.stack || null,
     })
     next(error)
   }
@@ -1233,24 +1380,48 @@ app.get("/paystack/callback", async (req, res, next) => {
 app.get("/paystack/pending", async (req, res, next) => {
   try {
     const reference = String(req.query.reference || "").trim()
+    logPaystackFlow("pending.enter", {
+      reference,
+      sessionUserId: req.user?.id || null,
+    })
     if (!reference) {
+      logPaystackFlow("pending.missing_reference", {
+        sessionUserId: req.user?.id || null,
+      })
       req.session.messages = [{ type: "error", text: "Missing payment reference." }]
       return res.redirect("/checkout")
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
     if (existingOrder && req.user && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+      logPaystackFlow("pending.existing_order.authenticated", {
+        reference,
+        orderId: existingOrder.id,
+        sessionUserId: req.user.id,
+      })
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
       return res.redirect(`/orders/${existingOrder.id}`)
     }
     if (existingOrder && !req.user) {
+      logPaystackFlow("pending.existing_order.unauthenticated", {
+        reference,
+        orderId: existingOrder.id,
+      })
       req.session.messages = [{ type: "success", text: "Payment confirmed. Please sign in to view your order." }]
       return res.redirect("/login")
     }
 
+    logPaystackFlow("pending.render", {
+      reference,
+      sessionUserId: req.user?.id || null,
+    })
     return res.render("paystack-pending", { reference })
   } catch (error) {
+    logPaystackFlow("pending.error", {
+      message: error?.message,
+      stack: error?.stack || null,
+    })
     next(error)
   }
 })
@@ -1258,12 +1429,24 @@ app.get("/paystack/pending", async (req, res, next) => {
 app.get("/paystack/payment-status", async (req, res) => {
   try {
     const reference = String(req.query.reference || "").trim()
+    logPaystackFlow("status.enter", {
+      reference,
+      sessionUserId: req.user?.id || null,
+    })
     if (!reference) {
+      logPaystackFlow("status.missing_reference", {
+        sessionUserId: req.user?.id || null,
+      })
       return res.status(400).json({ ok: false, message: "Missing payment reference." })
     }
 
     const existingOrder = await getOrderByPaystackReference(db, reference)
     if (existingOrder) {
+      logPaystackFlow("status.existing_order", {
+        reference,
+        orderId: existingOrder.id,
+        sessionUserId: req.user?.id || null,
+      })
       return res.json({
         ok: true,
         status: "success",
@@ -1275,8 +1458,18 @@ app.get("/paystack/payment-status", async (req, res) => {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     })
     const paymentStatus = normalizePaystackStatus(response.data?.data?.status)
+    logPaystackFlow("status.verify_response", {
+      reference,
+      paystackStatus: paymentStatus,
+      amountKobo: Number(response.data?.data?.amount || 0),
+      channel: response.data?.data?.channel || null,
+      gatewayResponse: response.data?.data?.gateway_response || null,
+    })
 
     if (paymentStatus === "success") {
+      logPaystackFlow("status.redirect_callback_success", {
+        reference,
+      })
       return res.json({
         ok: true,
         status: paymentStatus,
@@ -1285,6 +1478,10 @@ app.get("/paystack/payment-status", async (req, res) => {
     }
 
     if (paystackFailureStatuses.has(paymentStatus)) {
+      logPaystackFlow("status.redirect_callback_failure", {
+        reference,
+        paystackStatus: paymentStatus,
+      })
       return res.json({
         ok: true,
         status: paymentStatus,
@@ -1292,13 +1489,20 @@ app.get("/paystack/payment-status", async (req, res) => {
       })
     }
 
+    logPaystackFlow("status.pending_response", {
+      reference,
+      paystackStatus: paystackPendingStatuses.has(paymentStatus) ? paymentStatus : "pending",
+    })
     return res.json({
       ok: true,
       status: paystackPendingStatuses.has(paymentStatus) ? paymentStatus : "pending",
       redirectTo: null,
     })
   } catch (error) {
-    console.error("Paystack payment status check error:", error)
+    logPaystackFlow("status.error", {
+      message: error?.message,
+      stack: error?.stack || null,
+    })
     return res.status(500).json({ ok: false, message: "Unable to check payment status right now." })
   }
 })
@@ -1312,6 +1516,12 @@ app.post("/paystack/webhook", async (req, res) => {
     const event = req.body?.event
     const payload = req.body?.data || {}
     const reference = payload?.reference
+    logPaystackFlow("webhook.enter", {
+      event,
+      reference,
+      status: payload?.status || null,
+      channel: payload?.channel || null,
+    })
 
     if (event === "charge.success" && reference) {
       await db.query(
@@ -1320,6 +1530,9 @@ app.post("/paystack/webhook", async (req, res) => {
          WHERE paystack_reference = $1`,
         [reference]
       )
+      logPaystackFlow("webhook.charge_success.updated", {
+        reference,
+      })
     }
 
     if ((event === "charge.failed" || event === "bank.transfer.rejected") && reference) {
@@ -1329,11 +1542,18 @@ app.post("/paystack/webhook", async (req, res) => {
          WHERE paystack_reference = $1 AND payment_status <> 'Paid'`,
         [reference]
       )
+      logPaystackFlow("webhook.charge_failed.updated", {
+        reference,
+        event,
+      })
     }
 
     return res.status(200).json({ status: true })
   } catch (error) {
-    console.error("Paystack webhook error:", error)
+    logPaystackFlow("webhook.error", {
+      message: error?.message,
+      stack: error?.stack || null,
+    })
     return res.status(200).json({ status: true })
   }
 })
