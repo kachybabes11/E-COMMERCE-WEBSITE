@@ -113,13 +113,22 @@ const paystackDefaultChannels = [...paystackSupportedChannels]
 const paystackPendingStatuses = new Set(["pending", "ongoing", "queued", "processing"])
 const paystackFailureStatuses = new Set(["failed", "abandoned", "reversed", "cancelled"])
 const lagosDeliveryAreas = [
-  { value: "ogudu", label: "Ogudu | Ojota", fee: 1000 },
-  { value: "alapere", label: "Alapere | Ketu", fee: 1500 },
-  { value: "ikeja", label: "Ikeja", fee: 3000 },
-  { value: "anthony", label: "Anthony | Maryland", fee: 3500 },
-  { value: "yaba", label: "Yaba | Surulere", fee: 4500 },
-  { value: "lekki", label: "Lekki", fee: 5000 },
-  { value: "ajah", label: "Ajah", fee: 6000 },
+  { value: "ogudu", label: "Ogudu | Ojota", fee: 1500 },
+  { value: "alapere", label: "Alapere | Ketu | Kosofe", fee: 2500 },
+  { value: "ikeja", label: "Ikeja | Alausa", fee: 4000 },
+  { value: "gbagada", label: "Gbagada", fee: 4000 },
+  { value: "magodophasetwo", label: "Magodo Phase 2", fee: 4000 },
+  { value: "anthony", label: "Anthony | Town Planning | Maryland", fee: 4000 },
+  { value: "obanikoro", label: "Obanikoro | Palmgroove | Onipanu | Pedro | Shomolu", fee: 4500 },
+  { value: "omole", label: "Omole | Magodo Phase 1 ", fee: 4500 },
+  { value: "ikorodu", label: "Mile 12 | Ikorodu", fee: 4500 },
+  { value: "yaba", label: "Yaba | Surulere | Ojuelegba ", fee: 5000 },
+  { value: "oshodi", label: "Oshodi | Ajao Estate | Airport Road | Mafoluku ", fee: 5000 },
+  { value: "fagba", label: "Ifako-Ijaiye | Abule-Egba | Iyana-Ipaja | Fagba | Iju-Ishaga", fee: 5000 },
+  { value: "egbeda", label: "Egbeda | Ikotun | Idimu", fee: 6000 },
+  { value: "berger", label: "Berger | Tollgate ", fee: 6000 },
+  { value: "lekki", label: "Marina | V.I | Lekki", fee: 7500 },
+  { value: "ajah", label: "Ajah", fee: 8500 },
 ]
 const lagosShippingFees = Object.fromEntries(lagosDeliveryAreas.map((area) => [area.value, area.fee]))
 
@@ -1070,9 +1079,6 @@ app.post(
   body("customerName").trim().notEmpty().withMessage("Name is required."),
   body("phone").trim().notEmpty().withMessage("Phone is required."),
   body("street").trim().notEmpty().withMessage("Street address is required."),
-  body("city").trim().notEmpty().withMessage("City is required."),
-  body("state").trim().notEmpty().withMessage("State is required."),
-  body("postalCode").trim().notEmpty().withMessage("Postal code is required."),
   body("shippingMethod").trim().isIn(["pickup", "lagos", "outside"]).withMessage("Select a shipping option."),
   async (req, res, next) => {
     let reservationCodeToRelease = null
@@ -1097,15 +1103,24 @@ app.post(
       let checkoutLagosArea = ""
 
       if (shippingMethod === "lagos") {
-        if (!Object.hasOwn(lagosShippingFees, lagosArea)) {
+        const isKnownLagosArea = Object.hasOwn(lagosShippingFees, lagosArea)
+        const isNotListedOption = lagosArea === "not_listed"
+
+        if (lagosArea && !isKnownLagosArea && !isNotListedOption) {
           return renderCheckoutPage(res, {
             cart,
             errors: [{ msg: "Please select a valid Lagos delivery area." }],
             formData,
           })
         }
-        shippingFee = lagosShippingFees[lagosArea]
-        checkoutLagosArea = lagosArea
+
+        if (isKnownLagosArea) {
+          shippingFee = lagosShippingFees[lagosArea]
+          checkoutLagosArea = lagosArea
+        } else if (isNotListedOption) {
+          shippingFee = 0
+          checkoutLagosArea = "not_listed"
+        }
       }
 
       const subtotal = getCartSubtotal(cart)
@@ -1115,10 +1130,10 @@ app.post(
         email: req.user.email,
         phone: req.body.phone,
         street: req.body.street,
-        city: req.body.city,
-        state: req.body.state,
-        postalCode: req.body.postalCode,
-        country: req.body.country || "Nigeria",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: "Nigeria",
         shippingMethod,
         lagosArea: checkoutLagosArea,
         shippingFee,

@@ -46,28 +46,6 @@
             <label for="street">Street Address</label>
             <input id="street" name="street" value="<%= formData.street || "" %>" required />
           </div>
-
-          <div class="grid-two">
-            <div class="form-group">
-              <label for="city">City</label>
-              <input id="city" name="city" value="<%= formData.city || "" %>" required />
-            </div>
-            <div class="form-group">
-              <label for="state">State</label>
-              <input id="state" name="state" value="<%= formData.state || "" %>" required />
-            </div>
-          </div>
-
-          <div class="grid-two">
-            <div class="form-group">
-              <label for="postalCode">Postal Code</label>
-              <input id="postalCode" name="postalCode" value="<%= formData.postalCode || "" %>" required />
-            </div>
-            <div class="form-group">
-              <label for="country">Country</label>
-              <input id="country" name="country" value="<%= formData.country || "Nigeria" %>" />
-            </div>
-          </div>
         </section>
 
         <section class="checkout-section shipping-group">
@@ -93,16 +71,18 @@
             <label for="lagosArea">Lagos Delivery Area</label>
             <select id="lagosArea" name="lagosArea">
               <option value="" <%= !formData.lagosArea ? "selected" : "" %>>Select your delivery area</option>
+              <option value="not_listed" <%= formData.lagosArea === "not_listed" ? "selected" : "" %>>My area is not listed — Negotiated</option>
               <% lagosDeliveryAreas.forEach((area) => { %>
               <option value="<%= area.value %>" <%= formData.lagosArea === area.value ? "selected" : "" %>><%= area.label %> — ₦<%= formatCurrency(area.fee) %></option>
               <% }) %>
             </select>
+            <p class="lagos-contact-note" id="lagosContactNote">If your Lagos location is not specified, please message us on WhatsApp after payment so we can process your delivery — <a href="https://wa.me/2347088069114" target="_blank" rel="noreferrer" class="checkout-inline-link"><strong>Chat +234 708 806 9114</strong></a>.</p>
           </div>
 
           <label class="shipping-option">
             <input type="radio" name="shippingMethod" value="outside" <%= formData.shippingMethod === "outside" ? "checked" : "" %> />
             <span>
-              <strong>Outside Lagos</strong>
+              <strong>Outside Lagos/Nigeria</strong>
               <small>Fee negotiated after order</small>
             </span>
           </label>
@@ -180,9 +160,17 @@
       let feeLabel = "Free";
 
       if (method === "lagos") {
-        const area = lagosArea ? lagosArea.value : "ikeja";
-        fee = shippingFees[area] || 0;
-        feeLabel = "₦" + Number(fee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const area = lagosArea ? lagosArea.value : "";
+        if (!area) {
+          fee = 0;
+          feeLabel = "Select area";
+        } else if (area === "not_listed") {
+          fee = 0;
+          feeLabel = "Negotiated";
+        } else {
+          fee = shippingFees[area] || 0;
+          feeLabel = "₦" + Number(fee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
       } else if (method === "outside") {
         feeLabel = "Negotiated";
       }
@@ -193,7 +181,7 @@
 
       if (lagosArea) {
         lagosArea.disabled = method !== "lagos";
-        lagosArea.required = method === "lagos";
+        lagosArea.required = false;
       }
 
       if (outsideLagosNotice) {
@@ -379,6 +367,17 @@
 
 .lagos-area.active {
   display: block;
+}
+
+.lagos-contact-note {
+  margin: 0.65rem 0 0;
+  padding: 0.75rem 0.8rem;
+  border-radius: 12px;
+  border: 1px dashed #d9a536;
+  background: color-mix(in srgb, #fff7e1 84%, white);
+  color: #6d4d00;
+  font-size: 0.93rem;
+  line-height: 1.5;
 }
 
 .outside-lagos-notice {
