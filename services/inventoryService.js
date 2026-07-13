@@ -208,6 +208,23 @@ export async function releaseReservationByCode(db, reservationCode, { note = "Re
   }
 }
 
+export async function findLatestPendingReservationCodeByUser(db, userId) {
+  if (!userId) return null
+
+  const result = await db.query(
+    `SELECT reservation_code
+     FROM inventory_reservations
+     WHERE user_id = $1
+       AND status = 'pending'
+       AND expires_at > now()
+     ORDER BY id DESC
+     LIMIT 1`,
+    [userId]
+  )
+
+  return result.rows[0]?.reservation_code || null
+}
+
 export async function commitReservation(db, { reservationCode, paystackReference, createOrderFn }) {
   const client = await db.connect()
   try {

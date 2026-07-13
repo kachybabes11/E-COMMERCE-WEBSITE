@@ -29,6 +29,7 @@ import {
   releaseExpiredReservations,
   reserveInventoryForCheckout,
   releaseReservationByCode,
+  findLatestPendingReservationCodeByUser,
   commitReservation,
 } from "./services/inventoryService.js"
 import {
@@ -1098,15 +1099,19 @@ app.get("/paystack/callback", async (req, res, next) => {
     const paymentStatus = normalizePaystackStatus(data.status)
     const metadata = data?.metadata || {}
 
-    const reservationCode =
-      String(checkout?.reservationCode || metadata?.reservation_code || "").trim() || null
-
-    reservationCodeForRecovery = reservationCode
-
     const ownerUserId = Number(
       checkout?.userId || metadata?.user_id || req.user?.id || 0
     )
     const ownerUser = req.user || (ownerUserId ? await getUserById(ownerUserId) : null)
+
+    let reservationCode =
+      String(checkout?.reservationCode || metadata?.reservation_code || "").trim() || null
+
+    if (!reservationCode && ownerUser?.id) {
+      reservationCode = await findLatestPendingReservationCodeByUser(db, ownerUser.id)
+    }
+
+    reservationCodeForRecovery = reservationCode
 
     const context = {
       customerName: checkout?.customerName || ownerUser?.email || "Customer",
@@ -1120,11 +1125,6 @@ app.get("/paystack/callback", async (req, res, next) => {
       shippingMethod: checkout?.shippingMethod || String(metadata?.shipping_method || "pickup"),
       shippingFee: Number(checkout?.shippingFee ?? metadata?.shipping_fee ?? 0),
       totalAmount: Number(checkout?.totalAmount ?? Number(data.amount || 0) / 100),
-    }
-
-    if (!checkout) {
-      req.session.messages = [{ type: "error", text: "Checkout session expired before payment confirmation. Please sign in and contact support with your payment reference if charged." }]
-      return res.redirect(req.user ? "/orders" : "/login")
     }
 
     if (paystackPendingStatuses.has(paymentStatus)) {
@@ -1144,15 +1144,14 @@ app.get("/paystack/callback", async (req, res, next) => {
     }
 
     if (!reservationCode) {
-      req.session.messages = [{ type: "error", text: "Unable to complete order: reservation information is missing." }]
-      return res.redirect("/checkout")
+      req.session.messages = [{ type: "error", text: "Payment was received, but order confirmation is delayed. Please check your orders shortly." }]
+      return res.redirect(req.user ? "/orders" : "/login")
     }
 
     const expectedAmountKobo = Number(metadata?.total_amount_kobo || Math.round(context.totalAmount * 100))
     if (expectedAmountKobo && Number(data.amount) !== expectedAmountKobo) {
-      await releaseReservationByCode(db, reservationCode, { note: "Payment amount mismatch" })
-      req.session.messages = [{ type: "error", text: "Payment amount does not match order total." }]
-      return res.redirect("/checkout")
+      req.session.messages = [{ type: "error", text: "Payment was received but amount verification is pending. Please contact support with your payment reference." }]
+      return res.redirect(req.user ? "/orders" : "/login")
     }
 
     if (!ownerUser?.id) {
