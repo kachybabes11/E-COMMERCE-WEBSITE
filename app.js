@@ -41,6 +41,8 @@ import {
 } from "./services/cartService.js"
 import {
   createOrder,
+  getOrderByPaystackReference,
+  getOrderByReservationCode,
   getUserOrders,
   getOrderDetails,
   getAllOrders,
@@ -106,6 +108,7 @@ I love you more than words will ever be able to express. Thank you for being my 
 
 const paystackSupportedChannels = ["card", "bank", "ussd", "bank_transfer", "qr", "mobile_money", "eft"]
 const paystackDefaultChannels = ["card", "bank", "ussd", "bank_transfer"]
+const paystackPendingStatuses = new Set(["pending", "ongoing", "queued"])
 const lagosDeliveryAreas = [
   { value: "ogudu", label: "Ogudu | Ojota", fee: 1000 },
   { value: "alapere", label: "Alapere | Ketu", fee: 1500 },
@@ -152,6 +155,10 @@ function isValidPaystackSignature(req) {
   }
 
   return timingSafeEqual(incoming, expected)
+}
+
+function normalizePaystackStatus(status) {
+  return String(status || "").trim().toLowerCase()
 }
 
 const upload = multer({
@@ -1060,36 +1067,54 @@ app.post(
 app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
   let reservationCodeForRecovery = null
   try {
-    const reference = req.query.reference
-    const checkout = req.session.checkout
-    if (!reference || !checkout) {
-      req.session.messages = [{ type: "error", text: "Unable to complete payment. Please try again." }]
+    const reference = String(req.query.reference || "").trim()
+    if (!reference) {
+      req.session.messages = [{ type: "error", text: "Unable to complete payment. Missing payment reference." }]
       return res.redirect("/checkout")
     }
+
+    const existingOrder = await getOrderByPaystackReference(db, reference)
+    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+      req.session.checkout = null
+      req.session.messages = [{ type: "success", text: "Payment already confirmed for this order." }]
+      return res.redirect(`/orders/${existingOrder.id}`)
+    }
+
+    const checkout = req.session.checkout
+    if (!checkout) {
+      req.session.messages = [{ type: "error", text: "Checkout session expired. Please start checkout again." }]
+      return res.redirect("/checkout")
+    }
+
     reservationCodeForRecovery = checkout.reservationCode || null
     const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
     })
     const data = response.data.data
-    if (["pending", "ongoing", "queued"].includes(String(data.status || "").toLowerCase())) {
-      req.session.messages = [
-        {
-          type: "error",
-          text: "Your payment is still processing. Complete the selected payment method, then try again once Paystack confirms it.",
-        },
-      ]
-      return res.redirect("/checkout")
+    const paymentStatus = normalizePaystackStatus(data.status)
+
+    if (paystackPendingStatuses.has(paymentStatus)) {
+      return res.redirect(`/paystack/pending?reference=${encodeURIComponent(reference)}`)
     }
-    if (data.status !== "success") {
+
+    if (paymentStatus !== "success") {
       await releaseReservationByCode(db, checkout.reservationCode, { note: "Payment verification failed" })
       req.session.messages = [{ type: "error", text: "Payment was not successful." }]
       return res.redirect("/checkout")
     }
+
     const cart = await getCurrentCartItems(req)
     if (!cart.length) {
+      const orderByReservation = await getOrderByReservationCode(db, checkout.reservationCode)
+      if (orderByReservation && (orderByReservation.user_id === req.user.id || req.user.is_admin)) {
+        req.session.checkout = null
+        req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
+        return res.redirect(`/orders/${orderByReservation.id}`)
+      }
       req.session.messages = [{ type: "error", text: "Your cart is empty." }]
       return res.redirect("/cart")
     }
+
     const subtotal = cart.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
     const totalAmount = subtotal + checkout.shippingFee
     if (Math.round(totalAmount * 100) !== Number(data.amount)) {
@@ -1098,32 +1123,47 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
       return res.redirect("/checkout")
     }
 
-    const order = await commitReservation(db, {
-      reservationCode: checkout.reservationCode,
-      paystackReference: data.reference,
-      createOrderFn: async (client, payload) =>
-        createOrder(client, {
-          userId: req.user.id,
-          customerName: checkout.customerName,
-          email: req.user.email,
-          phone: checkout.phone,
-          shippingAddress: {
-            street: checkout.street,
-            city: checkout.city,
-            state: checkout.state,
-            postalCode: checkout.postalCode,
-            country: checkout.country,
-          },
-          shippingMethod: checkout.shippingMethod,
-          shippingFee: checkout.shippingFee,
-          items: payload.orderItems,
-          paymentStatus: "Paid",
-          orderStatus: "Processing",
-          totalAmount,
-          paystackReference: data.reference,
-          reservationCode: payload.reservationCode,
-        }),
-    })
+    let order
+    try {
+      order = await commitReservation(db, {
+        reservationCode: checkout.reservationCode,
+        paystackReference: data.reference,
+        createOrderFn: async (client, payload) =>
+          createOrder(client, {
+            userId: req.user.id,
+            customerName: checkout.customerName,
+            email: req.user.email,
+            phone: checkout.phone,
+            shippingAddress: {
+              street: checkout.street,
+              city: checkout.city,
+              state: checkout.state,
+              postalCode: checkout.postalCode,
+              country: checkout.country,
+            },
+            shippingMethod: checkout.shippingMethod,
+            shippingFee: checkout.shippingFee,
+            items: payload.orderItems,
+            paymentStatus: "Paid",
+            orderStatus: "Processing",
+            totalAmount,
+            paystackReference: data.reference,
+            reservationCode: payload.reservationCode,
+          }),
+      })
+    } catch (commitError) {
+      const existingAfterCommit =
+        (await getOrderByPaystackReference(db, data.reference)) ||
+        (await getOrderByReservationCode(db, checkout.reservationCode))
+
+      if (existingAfterCommit && (existingAfterCommit.user_id === req.user.id || req.user.is_admin)) {
+        req.session.checkout = null
+        req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
+        return res.redirect(`/orders/${existingAfterCommit.id}`)
+      }
+
+      throw commitError
+    }
 
     if (dbEnabled) {
       await clearCart(db, { userId: req.user.id })
@@ -1135,7 +1175,7 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
     const orderDetail = await getOrderDetails(db, order.id)
     await sendOrderConfirmationEmail(order, orderDetail.items)
     await sendNewOrderNotificationEmail(order, orderDetail.items)
-    res.redirect(`/thank-you/${order.id}`)
+    res.redirect(`/orders/${order.id}`)
   } catch (error) {
     if (reservationCodeForRecovery) {
       try {
@@ -1145,6 +1185,72 @@ app.get("/paystack/callback", ensureAuthenticated, async (req, res, next) => {
       }
     }
     next(error)
+  }
+})
+
+app.get("/paystack/pending", ensureAuthenticated, async (req, res, next) => {
+  try {
+    const reference = String(req.query.reference || "").trim()
+    if (!reference) {
+      req.session.messages = [{ type: "error", text: "Missing payment reference." }]
+      return res.redirect("/checkout")
+    }
+
+    const existingOrder = await getOrderByPaystackReference(db, reference)
+    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+      req.session.checkout = null
+      req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
+      return res.redirect(`/orders/${existingOrder.id}`)
+    }
+
+    if (!req.session.checkout) {
+      req.session.messages = [{ type: "error", text: "Checkout session expired. Please start checkout again." }]
+      return res.redirect("/checkout")
+    }
+
+    return res.render("paystack-pending", { reference })
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get("/paystack/payment-status", ensureAuthenticated, async (req, res) => {
+  try {
+    const reference = String(req.query.reference || "").trim()
+    if (!reference) {
+      return res.status(400).json({ ok: false, message: "Missing payment reference." })
+    }
+
+    const existingOrder = await getOrderByPaystackReference(db, reference)
+    if (existingOrder && (existingOrder.user_id === req.user.id || req.user.is_admin)) {
+      return res.json({
+        ok: true,
+        status: "success",
+        redirectTo: `/orders/${existingOrder.id}`,
+      })
+    }
+
+    const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
+    })
+    const paymentStatus = normalizePaystackStatus(response.data?.data?.status)
+
+    if (paymentStatus === "success") {
+      return res.json({
+        ok: true,
+        status: paymentStatus,
+        redirectTo: `/paystack/callback?reference=${encodeURIComponent(reference)}`,
+      })
+    }
+
+    return res.json({
+      ok: true,
+      status: paymentStatus,
+      redirectTo: null,
+    })
+  } catch (error) {
+    console.error("Paystack payment status check error:", error)
+    return res.status(500).json({ ok: false, message: "Unable to check payment status right now." })
   }
 })
 

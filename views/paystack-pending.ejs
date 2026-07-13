@@ -1,0 +1,156 @@
+<%- include('../partials/header.ejs') %>
+
+<main class="page-content pending-page">
+  <section class="pending-card" data-payment-reference="<%= reference %>">
+    <p class="pending-kicker">Payment Processing</p>
+    <h1>We are confirming your payment</h1>
+    <p class="pending-copy">This can take a little longer for bank transfer, USSD, and some bank channels. Keep this page open while we verify your payment.</p>
+
+    <div class="pending-state" id="pendingState">Checking status...</div>
+    <p class="pending-ref">Reference: <strong><%= reference %></strong></p>
+
+    <div class="pending-actions">
+      <a class="button button-secondary" href="/checkout">Back to Checkout</a>
+      <a class="button button-primary" href="/orders">My Orders</a>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer.ejs') %>
+
+<style>
+.pending-page {
+  min-height: 70vh;
+  padding: 3rem 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.pending-card {
+  width: min(680px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  text-align: center;
+}
+
+.pending-kicker {
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.pending-card h1 {
+  margin: 0.4rem 0 0.7rem;
+}
+
+.pending-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
+.pending-state {
+  margin: 1.3rem auto 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.95rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-strong) 86%, #e5dbc9 14%);
+  border: 1px solid var(--surface-border);
+  font-weight: 700;
+}
+
+.pending-state::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d49c1f;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+.pending-ref {
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.pending-actions {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+</style>
+
+<script>
+  (function () {
+    const card = document.querySelector('.pending-card');
+    const stateNode = document.getElementById('pendingState');
+    const reference = card ? card.getAttribute('data-payment-reference') : '';
+
+    if (!reference) {
+      if (stateNode) stateNode.textContent = 'Missing payment reference.';
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    async function checkStatus() {
+      attempts += 1;
+      try {
+        const response = await fetch('/paystack/payment-status?reference=' + encodeURIComponent(reference), {
+          headers: {
+            Accept: 'application/json',
+          },
+          credentials: 'same-origin',
+        });
+
+        const payload = await response.json();
+        if (!response.ok || !payload.ok) {
+          throw new Error(payload.message || 'Unable to check payment status');
+        }
+
+        if (payload.status === 'success' && payload.redirectTo) {
+          if (stateNode) stateNode.textContent = 'Payment confirmed. Redirecting...';
+          window.location.href = payload.redirectTo;
+          return;
+        }
+
+        if (payload.status && payload.status !== 'pending' && payload.status !== 'ongoing' && payload.status !== 'queued') {
+          if (stateNode) stateNode.textContent = 'Payment status: ' + payload.status + '. Please return to checkout.';
+          return;
+        }
+
+        if (stateNode) stateNode.textContent = 'Payment still processing...';
+      } catch (error) {
+        if (stateNode) stateNode.textContent = 'Unable to check status right now. Retrying...';
+      }
+
+      if (attempts < maxAttempts) {
+        window.setTimeout(checkStatus, 5000);
+      } else if (stateNode) {
+        stateNode.textContent = 'Still waiting for confirmation. You can keep this page open or check My Orders.';
+      }
+    }
+
+    checkStatus();
+  })();
+</script>

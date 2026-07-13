@@ -99,6 +99,22 @@ export async function getOrderById(db, orderId) {
   return result.rows[0]
 }
 
+export async function getOrderByPaystackReference(db, paystackReference) {
+  const result = await db.query(
+    `SELECT * FROM orders WHERE paystack_reference = $1 ORDER BY id DESC LIMIT 1`,
+    [paystackReference]
+  )
+  return result.rows[0]
+}
+
+export async function getOrderByReservationCode(db, reservationCode) {
+  const result = await db.query(
+    `SELECT * FROM orders WHERE reservation_code = $1 ORDER BY id DESC LIMIT 1`,
+    [reservationCode]
+  )
+  return result.rows[0]
+}
+
 export async function getOrderDetails(db, orderId) {
   const order = await getOrderById(db, orderId)
   if (!order) return null
