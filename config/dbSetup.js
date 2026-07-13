@@ -210,6 +210,9 @@ export async function ensureDatabase() {
       [product.id, product.name, product.description, Number(product.price)]
     )
 
+    await db.query(`ALTER TABLE inventory_reservations ADD COLUMN IF NOT EXISTS checkout_context JSONB`)
+    await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS reservation_code TEXT`)
+
     const categories = Array.isArray(product.category) ? product.category : [product.category]
     for (const categoryNameRaw of categories) {
       const categoryName = String(categoryNameRaw || "").trim()
