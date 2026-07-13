@@ -1293,6 +1293,9 @@ app.get("/paystack/callback", async (req, res, next) => {
       contextTotalAmount: context.totalAmount,
     })
 
+    const expectedAmountKobo = Number(metadata?.total_amount_kobo || Math.round(context.totalAmount * 100))
+    const actualAmountKobo = Number(data.amount || 0)
+
     if (paystackPendingStatuses.has(paymentStatus)) {
       logPaystackFlow("callback.pending_status", {
         reference,
@@ -1333,16 +1336,25 @@ app.get("/paystack/callback", async (req, res, next) => {
       return res.redirect(req.user ? "/orders" : "/login")
     }
 
-    const expectedAmountKobo = Number(metadata?.total_amount_kobo || Math.round(context.totalAmount * 100))
-    if (expectedAmountKobo && Number(data.amount) !== expectedAmountKobo) {
+    if (expectedAmountKobo && actualAmountKobo < expectedAmountKobo) {
       logPaystackFlow("callback.amount_mismatch", {
         reference,
         reservationCode,
         expectedAmountKobo,
-        actualAmountKobo: Number(data.amount),
+        actualAmountKobo,
+        checkType: "underpayment",
       })
       req.session.messages = [{ type: "error", text: "Payment was received but amount verification is pending. Please contact support with your payment reference." }]
       return res.redirect(req.user ? "/orders" : "/login")
+    }
+
+    if (expectedAmountKobo && actualAmountKobo > expectedAmountKobo) {
+      logPaystackFlow("callback.amount_overage_accepted", {
+        reference,
+        reservationCode,
+        expectedAmountKobo,
+        actualAmountKobo,
+      })
     }
 
     if (!ownerUser?.id) {
@@ -1379,7 +1391,7 @@ app.get("/paystack/callback", async (req, res, next) => {
       orderId: order.id,
       ownerUserId: ownerUser.id,
     })
-    res.redirect(`/orders/${order.id}`)
+    res.redirect(`/thank-you/${order.id}`)
   } catch (error) {
     logPaystackFlow("callback.unhandled_error", {
       message: error?.message,
@@ -1414,7 +1426,7 @@ app.get("/paystack/pending", async (req, res, next) => {
       })
       req.session.checkout = null
       req.session.messages = [{ type: "success", text: "Payment confirmed for your order." }]
-      return res.redirect(`/orders/${existingOrder.id}`)
+      return res.redirect(`/thank-you/${existingOrder.id}`)
     }
     if (existingOrder && !req.user) {
       logPaystackFlow("pending.existing_order.unauthenticated", {
