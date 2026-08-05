@@ -30,6 +30,11 @@
   function setTheme(theme) {
     body.setAttribute("data-theme", theme);
     localStorage.setItem("lux-theme", theme);
+    const toggle = document.querySelector("[data-theme-toggle]");
+    if (toggle) {
+      toggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+      toggle.setAttribute("title", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+    }
   }
 
   function initTheme() {

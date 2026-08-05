@@ -3,14 +3,23 @@
 
 <main class="page-content wishlist-page">
   <section class="wishlist-card" data-reveal>
-    <div class="section-header">
-      <h1>Your Wishlist</h1>
-      <p>Save your favorite pieces and move them into cart when ready.</p>
+    <div class="wishlist-hero">
+      <div class="section-header">
+        <h1>Your Wishlist</h1>
+        <p>Save your favorite pieces and move them into cart when ready.</p>
+      </div>
+
+      <% if (wishlist.length) { %>
+      <div class="wishlist-summary">
+        <span class="wishlist-pill"><strong><%= wishlist.length %></strong> saved item(s)</span>
+
+      </div>
+      <% } %>
     </div>
 
     <% if (!wishlist.length) { %>
     <div class="empty-state premium-empty">
-      <div class="empty-illustration">o</div>
+      <div class="empty-illustration">♡</div>
       <h2>Your wishlist is waiting.</h2>
       <p>Discover signature styles and save the ones that match your vibe.</p>
       <a href="/products" class="button button-primary">Discover Bags</a>
