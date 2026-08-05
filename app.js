@@ -2296,22 +2296,27 @@ app.get("/reviews", (req, res) => {
   res.render("reviews")
 })
 
-app.post("/reviews", ensureAuthenticated, body("reviewer_name").trim().notEmpty().withMessage("Please enter your name."), body("rating").isInt({ min: 1, max: 5 }).withMessage("Please select a rating."), body("review_text").trim().notEmpty().isLength({ max: 1000 }).withMessage("Please enter your review."), async (req, res, next) => {
+app.post("/reviews", ensureAuthenticated, async (req, res, next) => {
   try {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      req.flash("error", "Please fill in all fields correctly.")
+    const reviewerName = String(req.body.reviewer_name || "").trim()
+    const rating = Number(req.body.rating)
+    const reviewText = String(req.body.review_text || "").trim()
+    const orderId = req.body.order_id ? Number(req.body.order_id) : null
+
+    if (!reviewerName || !Number.isInteger(rating) || rating < 1 || rating > 5 || !reviewText) {
+      req.session.messages = [{ type: "error", text: "Please fill in all fields correctly." }]
       return res.redirect("back")
     }
-    const { reviewer_name, rating, review_text, order_id } = req.body
+
     await db.query(
       `INSERT INTO customer_reviews (user_id, order_id, reviewer_name, rating, review_text)
        VALUES ($1, $2, $3, $4, $5)`,
-      [req.user.id, order_id ? Number(order_id) : null, String(reviewer_name || "").trim(), Number(rating), String(review_text || "").trim()]
+      [req.user.id, orderId, reviewerName, rating, reviewText]
     )
-    req.flash("success", "Thank you for your review!")
-    const redirectTo = order_id ? `/thank-you/${order_id}` : "/"
-    res.redirect(redirectTo)
+
+    req.session.messages = [{ type: "success", text: "Thank you for your review!" }]
+    const redirectTo = orderId ? `/thank-you/${orderId}` : "/"
+    return res.redirect(redirectTo)
   } catch (error) {
     next(error)
   }
