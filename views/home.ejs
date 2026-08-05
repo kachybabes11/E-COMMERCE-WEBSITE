@@ -99,7 +99,7 @@
           <div class="review-stars"><%= '★'.repeat(testimonial.rating) %><%= '☆'.repeat(5 - testimonial.rating) %></div>
           <blockquote>"<%= testimonial.quote %>"</blockquote>
           <h3><%= testimonial.name %></h3>
-          <small><%= testimonial.role %></small>
+          <small><%= testimonial.role || 'Verified Customer' %></small>
         </div>
       </article>
     </div>

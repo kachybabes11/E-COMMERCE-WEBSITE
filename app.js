@@ -826,33 +826,48 @@ function appendBirthdayMessageForUser(req, user) {
   req.session.messages = existingMessages
 }
 
-app.get("/", (req, res) => {
-  const featured = getCatalog().slice(0, 4)
-  const testimonials = [
-    {
-      name: "Aisha Bello",
-      role: "Lagos",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
-      rating: 5,
-      quote: "My Chicnstraps bag arrived and the finish is unreal. It instantly elevated my wardrobe.",
-    },
-    {
-      name: "Tomi Adebayo",
-      role: "Abuja",
-      avatar: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=200&q=80",
-      rating: 5,
-      quote: "The packaging felt like unboxing luxury. I got compliments the first day I wore it.",
-    },
-    {
-      name: "Zainab Musa",
-      role: "Port Harcourt",
-      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=200&q=80",
-      rating: 4,
-      quote: "High quality, rich texture, and the color looked exactly like the photos.",
-    },
-  ]
-  const testimonial = testimonials[Math.floor(Math.random() * testimonials.length)]
-  res.render("home", { featured, testimonial })
+app.get("/", async (req, res, next) => {
+  try {
+    const featured = getCatalog().slice(0, 4)
+    let testimonial = null
+
+    if (dbEnabled) {
+      try {
+        const result = await db.query(
+          `SELECT reviewer_name, rating, review_text
+           FROM customer_reviews
+           WHERE review_text IS NOT NULL AND TRIM(review_text) <> ''
+           ORDER BY created_at DESC, id DESC
+           LIMIT 1`
+        )
+
+        const review = result.rows[0]
+        if (review) {
+          testimonial = {
+            name: review.reviewer_name || "Verified Customer",
+            rating: Number(review.rating) || 5,
+            quote: review.review_text,
+            role: "Verified Customer",
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to load homepage customer reviews:", error.message)
+      }
+    }
+
+    if (!testimonial) {
+      testimonial = {
+        name: "Chicnstraps Customer",
+        rating: 5,
+        quote: "Be the first to share your experience with us.",
+        role: "Verified Customer",
+      }
+    }
+
+    res.render("home", { featured, testimonial })
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.get("/products", async (req, res, next) => {
