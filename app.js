@@ -1133,7 +1133,7 @@ app.post(
         city: "",
         state: "",
         postalCode: "",
-        country: "Nigeria",
+        country: "",
         shippingMethod,
         lagosArea: checkoutLagosArea,
         shippingFee,
@@ -1647,7 +1647,7 @@ app.get("/thank-you/:id", ensureAuthenticated, async (req, res, next) => {
     if (!detail || (detail.order.user_id !== req.user.id && !req.user.is_admin)) {
       return res.status(404).render("404")
     }
-    res.render("thank-you", { order: detail.order, items: detail.items })
+    res.render("thank-you", { order: detail.order, items: detail.items, csrfToken: req.csrfToken() })
   } catch (error) {
     next(error)
   }
@@ -2296,7 +2296,7 @@ app.get("/reviews", (req, res) => {
   res.render("reviews")
 })
 
-app.post("/reviews", ensureAuthenticated, body("reviewer_name").trim().notEmpty().escape(), body("rating").isInt({ min: 1, max: 5 }), body("review_text").trim().notEmpty().isLength({ max: 1000 }).escape(), async (req, res, next) => {
+app.post("/reviews", ensureAuthenticated, body("reviewer_name").trim().notEmpty().withMessage("Please enter your name."), body("rating").isInt({ min: 1, max: 5 }).withMessage("Please select a rating."), body("review_text").trim().notEmpty().isLength({ max: 1000 }).withMessage("Please enter your review."), async (req, res, next) => {
   try {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -2307,7 +2307,7 @@ app.post("/reviews", ensureAuthenticated, body("reviewer_name").trim().notEmpty(
     await db.query(
       `INSERT INTO customer_reviews (user_id, order_id, reviewer_name, rating, review_text)
        VALUES ($1, $2, $3, $4, $5)`,
-      [req.user.id, order_id ? Number(order_id) : null, reviewer_name, Number(rating), review_text]
+      [req.user.id, order_id ? Number(order_id) : null, String(reviewer_name || "").trim(), Number(rating), String(review_text || "").trim()]
     )
     req.flash("success", "Thank you for your review!")
     const redirectTo = order_id ? `/thank-you/${order_id}` : "/"
