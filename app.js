@@ -2299,6 +2299,10 @@ app.post(
   }
 )
 
+app.get("/privacy-policy", (req, res) => {
+  res.render("privacy-policy")
+})
+
 app.get("/about", (req, res) => {
   res.render("about")
 })
